@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: plant-care-reminder
+    env: python
+    buildCommand: pip install -r requirements.txt && python populate_demo_data.py
+    startCommand: gunicorn app:app
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
