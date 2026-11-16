@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlantCare - Reminder & Garden Management</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans antialiased">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                
+                <!-- Logo -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="navigate('dashboard')">
+                    <span class="w-10 h-10 rounded-xl bg-brand-100 text-brand-700 flex items-center justify-center text-xl shadow-inner">
+                        <i class="fa-solid fa-seedling"></i>
+                    </span>
+                    <span class="text-brand-700 font-bold text-xl tracking-tight">Plant<span class="text-emerald-500">Care</span></span>
+                </div>
+
+                <!-- Desktop Nav Links -->
+                <div class="hidden md:flex items-center space-x-1 lg:space-x-2 text-sm font-medium">
+                    <button onclick="navigate('dashboard')" class="nav-item px-3 py-2 rounded-xl transition-colors text-slate-600 hover:text-brand-700 hover:bg-slate-100" data-page="dashboard">
+                        <i class="fa-solid fa-gauge mr-1.5 text-xs"></i> Dashboard
+                    </button>
+                    <button onclick="navigate('plants')" class="nav-item px-3 py-2 rounded-xl transition-colors text-slate-600 hover:text-brand-700 hover:bg-slate-100" data-page="plants">
+                        <i class="fa-solid fa-leaf mr-1.5 text-xs"></i> My Plants
+                    </button>
+                    <button onclick="navigate('reminders')" class="nav-item px-3 py-2 rounded-xl transition-colors text-slate-600 hover:text-brand-700 hover:bg-slate-100" data-page="reminders">
+                        <i class="fa-solid fa-clock-rotate-left mr-1.5 text-xs"></i> Reminders
+                    </button>
+                    <button onclick="navigate('calendar')" class="nav-item px-3 py-2 rounded-xl transition-colors text-slate-600 hover:text-brand-700 hover:bg-slate-100" data-page="calendar">
+                        <i class="fa-solid fa-calendar-days mr-1.5 text-xs"></i> Calendar
+                    </button>
+                    <button onclick="navigate('library')" class="nav-item px-3 py-2 rounded-xl transition-colors text-slate-600 hover:text-brand-700 hover:bg-slate-100" data-page="library">
+                        <i class="fa-solid fa-book-open mr-1.5 text-xs"></i> Library
+                    </button>
+
+                    <!-- Advanced Dropdown -->
+                    <div class="relative group">
+                        <button class="px-3 py-2 rounded-xl text-slate-600 hover:text-brand-700 hover:bg-slate-100 transition-colors flex items-center">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-1.5 text-brand-600 text-xs"></i> Advanced
+                            <i class="fa-solid fa-chevron-down ml-1 text-[10px] text-slate-400 group-hover:rotate-180 transition-transform"></i>
+                        </button>
+                        <div class="absolute left-0 mt-1 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 hidden group-hover:block z-50">
+                            <button onclick="navigate('health')" class="w-full text-left flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-emerald-50 hover:text-brand-700">
+                                <i class="fa-solid fa-heart-pulse mr-2.5 text-rose-500 w-4 text-center"></i> Health Checker
+                            </button>
+                            <button onclick="navigate('watering')" class="w-full text-left flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-emerald-50 hover:text-brand-700">
+                                <i class="fa-solid fa-droplet mr-2.5 text-blue-500 w-4 text-center"></i> Smart Watering
+                            </button>
+                            <button onclick="navigate('growth')" class="w-full text-left flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-emerald-50 hover:text-brand-700">
+                                <i class="fa-solid fa-chart-line mr-2.5 text-emerald-600 w-4 text-center"></i> Growth Tracker
+                            </button>
+                            <div class="border-t border-slate-100 my-1"></div>
+                            <button onclick="navigate('history')" class="w-full text-left flex items-center px-4 py-2 text-sm text-slate-700 hover:bg-emerald-50 hover:text-brand-700">
+                                <i class="fa-solid fa-list-check mr-2.5 text-amber-500 w-4 text-center"></i> Care History
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right items: Add Plant button, Notification Bell, User Avatar -->
+                <div class="flex items-center space-x-2 sm:space-x-3">
+                    <button onclick="navigate('add-plant')" class="hidden sm:inline-flex items-center px-3.5 py-1.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-sm transition-all">
+                        <i class="fa-solid fa-plus mr-1.5"></i> Add Plant
+                    </button>
+
+                    <!-- Notification Bell -->
+                    <button onclick="navigate('notifications')" class="relative p-2 text-slate-500 hover:text-brand-700 hover:bg-slate-100 rounded-full transition-colors" title="Notifications">
+                        <i class="fa-regular fa-bell text-lg"></i>
+                        <span id="unreadBadge" class="absolute top-1 right-1 inline-flex items-center justify-center rounded-full h-4 w-4 bg-rose-500 text-[10px] font-bold text-white leading-none">3</span>
+                    </button>
+
+                    <!-- User Profile Dropdown -->
+                    <div class="relative group">
+                        <button class="flex items-center space-x-2 p-1 rounded-xl hover:bg-slate-100 transition-colors">
+                            <div class="w-8 h-8 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-sm border border-brand-200">
+                                D
+                            </div>
+                            <span class="hidden lg:inline text-xs font-semibold text-slate-700">demo_student</span>
+                            <i class="fa-solid fa-chevron-down text-[10px] text-slate-400 group-hover:rotate-180 transition-transform"></i>
+                        </button>
+                        <div class="absolute right-0 mt-1 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 hidden group-hover:block z-50">
+                            <div class="px-4 py-2 border-b border-slate-100">
+                                <p class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Signed in as</p>
+                                <p class="text-xs font-bold text-slate-800 truncate">demo@college.edu</p>
+                            </div>
+                            <button onclick="navigate('profile')" class="w-full text-left flex items-center px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 font-medium">
+                                <i class="fa-regular fa-user mr-2.5 text-slate-400 w-4 text-center"></i> My Profile
+                            </button>
+                            <button onclick="navigate('notifications')" class="w-full text-left flex items-center px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 font-medium">
+                                <i class="fa-regular fa-bell mr-2.5 text-slate-400 w-4 text-center"></i> Notifications
+                            </button>
+                            <div class="border-t border-slate-100 my-1"></div>
+                            <button onclick="resetDataDemo()" class="w-full text-left flex items-center px-4 py-2 text-xs text-brand-600 hover:bg-emerald-50 font-medium">
+                                <i class="fa-solid fa-rotate-left mr-2.5 text-brand-500 w-4 text-center"></i> Reset Sample Data
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Menu Hamburger -->
+                    <button id="mobileMenuBtn" class="md:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 focus:outline-none">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Mobile Dropdown Menu -->
+        <div id="mobileMenu" class="hidden md:hidden border-t border-slate-100 bg-white px-4 pt-2 pb-4 space-y-1 text-sm font-medium">
+            <button onclick="navigate('dashboard')" class="w-full text-left block px-3 py-2 rounded-xl text-slate-700 hover:bg-brand-50 hover:text-brand-700">
+                <i class="fa-solid fa-gauge w-6 text-slate-400"></i> Dashboard
+            </button>
+            <button onclick="navigate('plants')" class="w-full text-left block px-3 py-2 rounded-xl text-slate-700 hover:bg-brand-50 hover:text-brand-700">
+                <i class="fa-solid fa-leaf w-6 text-slate-400"></i> My Plants
+            </button>
+            <button onclick="navigate('add-plant')" class="w-full text-left block px-3 py-2 rounded-xl text-brand-700 font-semibold bg-brand-50">
+                <i class="fa-solid fa-plus w-6 text-brand-600"></i> Add New Plant
+            </button>
+            <button onclick="navigate('reminders')" class="w-full text-left block px-3 py-2 rounded-xl text-slate-700 hover:bg-brand-50 hover:text-brand-700">
+                <i class="fa-solid fa-clock-rotate-left w-6 text-slate-400"></i> Reminders
+            </button>
+            <button onclick="navigate('calendar')" class="w-full text-left block px-3 py-2 rounded-xl text-slate-700 hover:bg-brand-50 hover:text-brand-700">
+                <i class="fa-solid fa-calendar-days w-6 text-slate-400"></i> Care Calendar
+            </button>
+            <button onclick="navigate('library')" class="w-full text-left block px-3 py-2 rounded-xl text-slate-700 hover:bg-brand-50 hover:text-brand-700">
+                <i class="fa-solid fa-book-open w-6 text-slate-400"></i> Plant Library
+            </button>
+            <div class="border-t border-slate-100 my-1 pt-1">
+                <span class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Advanced Features</span>
+            </div>
+            <button onclick="navigate('health')" class="w-full text-left block px-3 py-2 rounded-xl text-slate-700 hover:bg-brand-50 hover:text-brand-700">
+                <i class="fa-solid fa-heart-pulse w-6 text-rose-500"></i> Health Checker
+            </button>
+            <button onclick="navigate('watering')" class="w-full text-left block px-3 py-2 rounded-xl text-slate-700 hover:bg-brand-50 hover:text-brand-700">
+                <i class="fa-solid fa-droplet w-6 text-blue-500"></i> Smart Watering Decision
+            </button>
+            <button onclick="navigate('growth')" class="w-full text-left block px-3 py-2 rounded-xl text-slate-700 hover:bg-brand-50 hover:text-brand-700">
+                <i class="fa-solid fa-chart-line w-6 text-emerald-600"></i> Plant Growth Tracker
+            </button>
+            <button onclick="navigate('history')" class="w-full text-left block px-3 py-2 rounded-xl text-slate-700 hover:bg-brand-50 hover:text-brand-700">
+                <i class="fa-solid fa-list-check w-6 text-amber-500"></i> Care History
+            </button>
+            <button onclick="navigate('profile')" class="w-full text-left block px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-50">
+                <i class="fa-regular fa-user w-6 text-slate-400"></i> My Profile
+            </button>
+        </div>
+    </nav>
+
+    <!-- Global Toast Alert Banner -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 hidden transition-all duration-300">
+        <div class="bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 text-xs font-semibold">
+            <span id="toastIcon"><i class="fa-solid fa-check text-emerald-400"></i></span>
+            <span id="toastMsg">Action completed successfully.</span>
+        </div>
+    </div>
+
+    <!-- Main Content Dynamic Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- ================= VIEW 1: DASHBOARD ================= -->
+        <section id="view-dashboard" class="tab-content active space-y-6">
+            <!-- Hero Banner -->
+            <div class="bg-gradient-to-r from-emerald-800 to-brand-700 rounded-3xl p-6 sm:p-8 text-white shadow-lg relative overflow-hidden">
+                <div class="relative z-10 max-w-2xl">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-600/50 backdrop-blur-sm border border-emerald-400/30 text-emerald-100 mb-3">
+                        <i class="fa-solid fa-leaf mr-1.5 text-xs"></i> Garden Overview
+                    </span>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Good day, Gardener!</h1>
+                    <p id="dashBannerMsg" class="mt-2 text-emerald-100 text-sm leading-relaxed">
+                        Loading your garden schedule...
+                    </p>
+                    <div class="mt-6 flex flex-wrap gap-3">
+                        <button onclick="navigate('add-plant')" class="inline-flex items-center px-4 py-2 bg-white text-brand-800 rounded-xl font-bold text-xs shadow hover:bg-emerald-50 transition-all">
+                            <i class="fa-solid fa-plus mr-1.5"></i> Add Plant
+                        </button>
+                        <button onclick="navigate('watering')" class="inline-flex items-center px-4 py-2 bg-emerald-600/60 hover:bg-emerald-600 border border-emerald-400/40 text-white rounded-xl font-bold text-xs backdrop-blur-sm transition-all">
+                            <i class="fa-solid fa-droplet mr-1.5"></i> Smart Watering
+                        </button>
+                        <button onclick="navigate('health')" class="inline-flex items-center px-4 py-2 bg-emerald-600/60 hover:bg-emerald-600 border border-emerald-400/40 text-white rounded-xl font-bold text-xs backdrop-blur-sm transition-all">
+                            <i class="fa-solid fa-heart-pulse mr-1.5"></i> Health Checker
+                        </button>
+                    </div>
+                </div>
+                <div class="absolute -right-8 -bottom-8 opacity-15 text-white text-9xl pointer-events-none hidden sm:block">
+                    <i class="fa-solid fa-seedling"></i>
+                </div>
+            </div>
+
+            <!-- 4 Metric Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Plants</p>
+                        <h3 id="statTotalPlants" class="text-2xl font-extrabold text-slate-800 mt-1">0</h3>
+                        <button onclick="navigate('plants')" class="text-xs text-brand-600 font-semibold hover:underline mt-1">View Collection &rarr;</button>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-leaf"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Needs Water</p>
+                        <h3 id="statNeedsWater" class="text-2xl font-extrabold text-rose-600 mt-1">0</h3>
+                        <span id="statWaterStatus" class="text-xs text-slate-500 mt-1 inline-block">Checking...</span>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-droplet"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Fertilizer Due</p>
+                        <h3 id="statFertilizerDue" class="text-2xl font-extrabold text-purple-700 mt-1">0</h3>
+                        <button onclick="navigate('reminders')" class="text-xs text-purple-600 font-semibold hover:underline mt-1">View tasks &rarr;</button>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-bottle-droplet"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Due Today</p>
+                        <h3 id="statDueToday" class="text-2xl font-extrabold text-amber-600 mt-1">0</h3>
+                        <button onclick="navigate('calendar')" class="text-xs text-amber-600 font-semibold hover:underline mt-1">Check Calendar &rarr;</button>
+                    </div>
+                    <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-calendar-check"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Two-Column Layout -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left 2 Cols: Urgent Watering & Tasks -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Urgent Watering Required -->
+                    <div id="dashUrgentCard" class="bg-white rounded-3xl p-6 border border-rose-100 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center space-x-2 text-rose-600 font-bold">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                <h2 class="text-base text-slate-800">Plants Requiring Water Now</h2>
+                            </div>
+                            <span class="text-xs bg-rose-100 text-rose-800 font-bold px-2.5 py-0.5 rounded-full">Urgent</span>
+                        </div>
+                        <div id="dashUrgentList" class="divide-y divide-slate-100">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Today's Care Activities -->
+                    <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-base font-bold text-slate-800 flex items-center space-x-2">
+                                <i class="fa-regular fa-calendar-check text-brand-600"></i>
+                                <span>Today's Care Tasks</span>
+                            </h2>
+                            <span id="dashTodayDate" class="text-xs text-slate-400">Today</span>
+                        </div>
+                        <div id="dashTodayTasksList" class="divide-y divide-slate-100">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Recent Growth Updates -->
+                    <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-base font-bold text-slate-800 flex items-center space-x-2">
+                                <i class="fa-solid fa-arrow-trend-up text-emerald-600"></i>
+                                <span>Recent Growth Updates</span>
+                            </h2>
+                            <button onclick="navigate('growth')" class="text-xs font-semibold text-brand-600 hover:underline">View All &rarr;</button>
+                        </div>
+                        <div id="dashGrowthList" class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Col: Quick Access & Recent Notifications -->
+                <div class="space-y-6">
+                    <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
+                        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-4">Quick Features</h3>
+                        <div class="grid grid-cols-2 gap-3 text-center">
+                            <button onclick="navigate('add-plant')" class="p-3.5 rounded-2xl border border-slate-100 hover:border-brand-200 hover:bg-brand-50/50 transition-all group">
+                                <i class="fa-solid fa-circle-plus text-xl text-brand-600 group-hover:scale-110 transition-transform mb-1.5 block"></i>
+                                <span class="text-xs font-semibold text-slate-700">Add Plant</span>
+                            </button>
+                            <button onclick="navigate('library')" class="p-3.5 rounded-2xl border border-slate-100 hover:border-brand-200 hover:bg-brand-50/50 transition-all group">
+                                <i class="fa-solid fa-book-bookmark text-xl text-blue-600 group-hover:scale-110 transition-transform mb-1.5 block"></i>
+                                <span class="text-xs font-semibold text-slate-700">Plant Library</span>
+                            </button>
+                            <button onclick="navigate('watering')" class="p-3.5 rounded-2xl border border-slate-100 hover:border-brand-200 hover:bg-brand-50/50 transition-all group">
+                                <i class="fa-solid fa-droplet text-xl text-cyan-600 group-hover:scale-110 transition-transform mb-1.5 block"></i>
+                                <span class="text-xs font-semibold text-slate-700">Smart Water</span>
+                            </button>
+                            <button onclick="navigate('health')" class="p-3.5 rounded-2xl border border-slate-100 hover:border-brand-200 hover:bg-brand-50/50 transition-all group">
+                                <i class="fa-solid fa-heart-pulse text-xl text-rose-500 group-hover:scale-110 transition-transform mb-1.5 block"></i>
+                                <span class="text-xs font-semibold text-slate-700">Health Check</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center space-x-2">
+                                <i class="fa-regular fa-bell text-slate-500"></i>
+                                <span>Recent Alerts</span>
+                            </h3>
+                            <button onclick="navigate('notifications')" class="text-xs font-semibold text-brand-600 hover:underline">All &rarr;</button>
+                        </div>
+                        <div id="dashAlertsList" class="space-y-3">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= VIEW 2: MY PLANTS ================= -->
+        <section id="view-plants" class="tab-content space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800">My Plant Collection</h1>
+                    <p class="text-sm text-slate-500">Manage and monitor all plants in your care</p>
+                </div>
+                <button onclick="navigate('add-plant')" class="inline-flex items-center px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-semibold shadow-sm transition-all">
+                    <i class="fa-solid fa-plus mr-2 text-xs"></i> Add New Plant
+                </button>
+            </div>
+
+            <!-- Filter bar -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-3 items-center justify-between">
+                <div class="relative w-full md:w-auto flex-grow">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="text" id="plantSearchInput" oninput="renderPlants()" placeholder="Search plants by name or species..."
+                        class="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+                <div class="flex items-center space-x-2 w-full md:w-auto">
+                    <select id="plantCategorySelect" onchange="renderPlants()" class="py-2 px-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                        <option value="All">All Categories</option>
+                        <option value="Indoor">Indoor</option>
+                        <option value="Outdoor">Outdoor</option>
+                        <option value="Succulent">Succulent</option>
+                        <option value="Flowering">Flowering</option>
+                        <option value="Herb">Herb</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Plants Grid -->
+            <div id="plantsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Dynamic cards -->
+            </div>
+        </section>
+
+        <!-- ================= VIEW 3: ADD PLANT ================= -->
+        <section id="view-add-plant" class="tab-content max-w-3xl mx-auto py-4">
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-md">
+                <div class="flex items-center space-x-3 pb-6 border-b border-slate-100 mb-6">
+                    <div class="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-2xl flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-seedling"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-800">Add a Plant to Your Garden</h1>
+                        <p class="text-xs text-slate-500">Record plant details and configure manual watering reminders</p>
+                    </div>
+                </div>
+
+                <form id="addPlantForm" onsubmit="handleAddPlant(event)" class="space-y-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Plant Name *</label>
+                            <input type="text" id="addPlantName" required placeholder="e.g. Living Room Monstera"
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Category</label>
+                            <select id="addPlantCategory" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                                <option value="Indoor">Indoor</option>
+                                <option value="Outdoor">Outdoor</option>
+                                <option value="Succulent">Succulent</option>
+                                <option value="Flowering">Flowering</option>
+                                <option value="Herb">Herb</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Species / Botanical Name</label>
+                            <input type="text" id="addPlantSpecies" placeholder="e.g. Monstera deliciosa"
+                                class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Date Added</label>
+                            <input type="date" id="addPlantDateAdded" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        </div>
+                    </div>
+
+                    <!-- Frequencies Box -->
+                    <div class="p-5 rounded-2xl bg-emerald-50/50 border border-emerald-100 space-y-4">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-900 flex items-center space-x-1.5">
+                            <i class="fa-solid fa-clock-rotate-left text-emerald-600"></i>
+                            <span>Care Reminder Schedules (Days)</span>
+                        </h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Water Every (days) *</label>
+                                <input type="number" id="addPlantWaterDays" min="1" max="90" value="7" required
+                                    class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Fertilize Every (days) *</label>
+                                <input type="number" id="addPlantFertDays" min="1" max="180" value="30" required
+                                    class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-emerald-100">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Last Watered Date (Optional)</label>
+                                <input type="date" id="addPlantLastWatered" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Last Fertilized Date (Optional)</label>
+                                <input type="date" id="addPlantLastFertilized" class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Special Care Notes</label>
+                        <textarea id="addPlantNotes" rows="3" placeholder="e.g. Near east window, loves misting..."
+                            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                    </div>
+
+                    <div class="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100">
+                        <button type="button" onclick="navigate('plants')" class="px-5 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50">Cancel</button>
+                        <button type="submit" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md transition-all">Save Plant</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- ================= VIEW 4: PLANT LIBRARY ================= -->
+        <section id="view-library" class="tab-content space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800">Botanical Plant Library</h1>
+                    <p class="text-sm text-slate-500">Explore predefined care profiles for common indoor and outdoor plants</p>
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col sm:flex-row gap-3">
+                <input type="text" id="libSearchInput" oninput="renderLibrary()" placeholder="Search library plants by name or description..."
+                    class="w-full pl-4 pr-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <select id="libCategorySelect" onchange="renderLibrary()" class="py-2 px-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                    <option value="All">All Categories</option>
+                    <option value="Indoor">Indoor</option>
+                    <option value="Outdoor">Outdoor</option>
+                    <option value="Succulent">Succulent</option>
+                    <option value="Flowering">Flowering</option>
+                    <option value="Herb">Herb</option>
+                </select>
+            </div>
+
+            <div id="libraryGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Dynamic library cards -->
+            </div>
+        </section>
+
+        <!-- ================= VIEW 5: REMINDERS ================= -->
+        <section id="view-reminders" class="tab-content space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800">Care Reminders</h1>
+                    <p class="text-sm text-slate-500">Automated schedules for watering and fertilizer feeding</p>
+                </div>
+                <div class="flex items-center space-x-2 bg-white p-1 rounded-2xl border border-slate-100 shadow-sm text-xs font-semibold">
+                    <button onclick="setReminderFilter('all')" id="btnRemFilterAll" class="px-3 py-1.5 rounded-xl bg-brand-600 text-white">All</button>
+                    <button onclick="setReminderFilter('watering')" id="btnRemFilterWater" class="px-3 py-1.5 rounded-xl text-slate-600 hover:bg-slate-100">Watering</button>
+                    <button onclick="setReminderFilter('fertilizer')" id="btnRemFilterFert" class="px-3 py-1.5 rounded-xl text-slate-600 hover:bg-slate-100">Fertilizer</button>
+                </div>
+            </div>
+
+            <div id="remindersContainer" class="space-y-6">
+                <!-- Rendered dynamically -->
+            </div>
+        </section>
+
+        <!-- ================= VIEW 6: CALENDAR ================= -->
+        <section id="view-calendar" class="tab-content space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800">Care Calendar</h1>
+                    <p class="text-sm text-slate-500">Visual schedule of watering and fertilizer activities</p>
+                </div>
+                <div class="flex items-center space-x-3 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm">
+                    <button onclick="changeMonth(-1)" class="p-2 text-slate-500 hover:text-slate-800 rounded-xl hover:bg-slate-100"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+                    <span id="calMonthTitle" class="text-xs font-bold text-slate-800 px-3 min-w-[130px] text-center">Month Year</span>
+                    <button onclick="changeMonth(1)" class="p-2 text-slate-500 hover:text-slate-800 rounded-xl hover:bg-slate-100"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-4 text-xs font-semibold bg-white p-3 rounded-2xl border border-slate-100 shadow-sm">
+                <div class="flex items-center space-x-1.5"><span class="w-3 h-3 rounded-full bg-blue-500"></span><span class="text-slate-600">Watering Due</span></div>
+                <div class="flex items-center space-x-1.5"><span class="w-3 h-3 rounded-full bg-purple-500"></span><span class="text-slate-600">Fertilizer Due</span></div>
+                <div class="flex items-center space-x-1.5"><span class="w-3 h-3 rounded-full bg-rose-500"></span><span class="text-slate-600">Overdue Task</span></div>
+            </div>
+
+            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                <div class="grid grid-cols-7 border-b border-slate-100 text-center py-3 bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+                </div>
+                <div id="calendarGrid" class="grid grid-cols-7 divide-x divide-y divide-slate-100">
+                    <!-- Calendar days -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= VIEW 7: NOTIFICATIONS ================= -->
+        <section id="view-notifications" class="tab-content max-w-3xl mx-auto space-y-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800">Notifications</h1>
+                    <p class="text-sm text-slate-500">Keep track of plant care tasks and reminders</p>
+                </div>
+                <button onclick="markAllNotificationsRead()" class="px-3.5 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-700 text-xs font-semibold rounded-xl border border-brand-200">
+                    Mark All as Read
+                </button>
+            </div>
+            <div id="notificationsList" class="space-y-3">
+                <!-- Notifications dynamic -->
+            </div>
+        </section>
+
+        <!-- ================= VIEW 8: CARE HISTORY ================= -->
+        <section id="view-history" class="tab-content space-y-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800">Care Activity History</h1>
+                    <p class="text-sm text-slate-500">Complete audit log of completed care actions</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-50 border-b border-slate-100 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                        <tr>
+                            <th class="py-3 px-6">Date</th>
+                            <th class="py-3 px-6">Plant</th>
+                            <th class="py-3 px-6">Activity</th>
+                            <th class="py-3 px-6">Description</th>
+                            <th class="py-3 px-6">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody" class="divide-y divide-slate-100">
+                        <!-- History rows -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================= VIEW 9: HEALTH CHECKER ================= -->
+        <section id="view-health" class="tab-content max-w-3xl mx-auto space-y-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800">Plant Health Checker</h1>
+                    <p class="text-sm text-slate-500">Analyze symptoms using our transparent botanical pathology engine</p>
+                </div>
+            </div>
+
+            <!-- Disclaimer -->
+            <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start space-x-3">
+                <i class="fa-solid fa-circle-info text-amber-600 text-sm mt-0.5"></i>
+                <p>This module analyzes symptoms against established botanical pathology guidelines to suggest practical recovery steps.</p>
+            </div>
+
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-md">
+                <form id="healthForm" onsubmit="handleHealthCheck(event)" class="space-y-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Select Plant</label>
+                        <select id="healthPlantSelect" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                            <!-- Options populated dynamically -->
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Select Common Symptoms</label>
+                        <div class="flex flex-wrap gap-2 mb-3">
+                            <button type="button" onclick="appendSymptom('Yellowing leaves and mushy stems')" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 hover:bg-emerald-100 text-slate-700 transition-colors">+ Yellow Leaves</button>
+                            <button type="button" onclick="appendSymptom('Crisp brown leaf tips and dry soil')" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 hover:bg-emerald-100 text-slate-700 transition-colors">+ Brown Tips</button>
+                            <button type="button" onclick="appendSymptom('Fine webbing and tiny white speckles')" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 hover:bg-emerald-100 text-slate-700 transition-colors">+ Webbing / Pests</button>
+                            <button type="button" onclick="appendSymptom('Pale, leggy growth stretching towards light')" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 hover:bg-emerald-100 text-slate-700 transition-colors">+ Leggy Growth</button>
+                            <button type="button" onclick="appendSymptom('Black circular leaf spots with yellow halo')" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 hover:bg-emerald-100 text-slate-700 transition-colors">+ Leaf Spots</button>
+                        </div>
+                        <textarea id="healthSymptoms" rows="3" required placeholder="Describe what you see: leaf discoloration, drooping, texture..."
+                            class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md transition-all flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-stethoscope"></i>
+                        <span>Run Botanical Symptom Analysis</span>
+                    </button>
+                </form>
+
+                <!-- Diagnosis Report Result -->
+                <div id="healthReportCard" class="mt-8 pt-6 border-t border-slate-100 hidden space-y-4">
+                    <div class="p-5 rounded-2xl bg-amber-50 border border-amber-200">
+                        <h4 class="text-[10px] font-bold uppercase tracking-wider text-amber-800">Identified Potential Issue</h4>
+                        <p id="reportIssue" class="text-base font-bold text-slate-800 mt-1"></p>
+                    </div>
+                    <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100 text-xs text-slate-700">
+                        <h4 class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Likely Environmental Causes</h4>
+                        <p id="reportCauses" class="leading-relaxed"></p>
+                    </div>
+                    <div class="p-5 rounded-2xl bg-emerald-50 border border-emerald-100 text-xs text-slate-800">
+                        <h4 class="text-[10px] font-bold uppercase tracking-wider text-emerald-800 mb-1">Recommended Recovery Action</h4>
+                        <p id="reportSuggestions" class="leading-relaxed"></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= VIEW 10: SMART WATERING ================= -->
+        <section id="view-watering" class="tab-content max-w-3xl mx-auto space-y-6">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-800">Smart Watering Decision</h1>
+                <p class="text-sm text-slate-500">Determine whether your plant needs water right now based on manual soil condition & schedule</p>
+            </div>
+
+            <!-- Decision Result Banner -->
+            <div id="waterDecisionCard" class="hidden rounded-3xl p-6 border shadow-md space-y-3">
+                <div class="flex items-center space-x-3">
+                    <span id="waterDecisionIcon" class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl text-white"></span>
+                    <div>
+                        <span id="waterDecisionPlant" class="text-[10px] font-bold uppercase tracking-wider opacity-75"></span>
+                        <h3 id="waterDecisionTitle" class="text-2xl font-extrabold"></h3>
+                    </div>
+                </div>
+                <div class="p-4 rounded-2xl bg-white/80 border border-black/5 text-xs text-slate-700 leading-relaxed">
+                    <p id="waterDecisionExpl"></p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-md">
+                <form id="smartWaterForm" onsubmit="handleSmartWater(event)" class="space-y-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Select Plant</label>
+                        <select id="waterPlantSelect" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                            <!-- Plants dynamic -->
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Observed Soil Condition</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <label class="flex flex-col p-4 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-brand-500 has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50/50">
+                                <input type="radio" name="soilCond" value="Dry" class="sr-only" required>
+                                <span class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-sm mb-2"><i class="fa-solid fa-sun"></i></span>
+                                <span class="text-xs font-bold text-slate-800">Dry</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Soil feels dusty or dry throughout</span>
+                            </label>
+                            <label class="flex flex-col p-4 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-brand-500 has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50/50">
+                                <input type="radio" name="soilCond" value="Slightly Moist" class="sr-only" required>
+                                <span class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center text-sm mb-2"><i class="fa-solid fa-droplet-half"></i></span>
+                                <span class="text-xs font-bold text-slate-800">Slightly Moist</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Cool, faint moisture clings to finger</span>
+                            </label>
+                            <label class="flex flex-col p-4 border-2 border-slate-200 rounded-2xl cursor-pointer hover:border-brand-500 has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50/50">
+                                <input type="radio" name="soilCond" value="Wet" class="sr-only" required>
+                                <span class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm mb-2"><i class="fa-solid fa-droplet"></i></span>
+                                <span class="text-xs font-bold text-slate-800">Wet</span>
+                                <span class="text-[10px] text-slate-400 mt-1">Soggy, waterlogged potting mix</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-md transition-all">
+                        Calculate Recommendation
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ================= VIEW 11: GROWTH TRACKER ================= -->
+        <section id="view-growth" class="tab-content space-y-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800">Plant Growth Tracker</h1>
+                    <p class="text-sm text-slate-500">Record milestone photographs and track height changes over time</p>
+                </div>
+            </div>
+
+            <!-- Side by side comparison card -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-sm space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-slate-800 text-base flex items-center space-x-2">
+                        <i class="fa-solid fa-images text-brand-600"></i>
+                        <span>Photographic Milestone Comparison: Living Room Monstera</span>
+                    </h3>
+                    <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">+11.0 cm Net Growth</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
+                    <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-2 text-center">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Initial Milestone (Day 1)</span>
+                        <div class="h-44 bg-emerald-100/50 rounded-xl flex items-center justify-center text-4xl text-emerald-600">
+                            <i class="fa-solid fa-seedling"></i>
+                        </div>
+                        <p class="text-xs font-bold text-slate-700">Height: 22.0 cm &bull; Repotted in 10-inch planter</p>
+                    </div>
+                    <div class="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-200 space-y-2 text-center">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 block">Latest Milestone (Current)</span>
+                        <div class="h-44 bg-emerald-200/50 rounded-xl flex items-center justify-center text-4xl text-emerald-700">
+                            <i class="fa-solid fa-leaf"></i>
+                        </div>
+                        <p class="text-xs font-bold text-emerald-800">Height: 33.0 cm &bull; Aerial roots on moss pole (+11.0 cm)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Milestone logs timeline -->
+            <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4">
+                <h3 class="font-bold text-slate-800 text-base">Recorded Growth Milestones</h3>
+                <div id="growthTimelineList" class="space-y-3">
+                    <!-- Milestones dynamic -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= VIEW 12: USER PROFILE ================= -->
+        <section id="view-profile" class="tab-content max-w-2xl mx-auto space-y-6">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-800">Profile & Settings</h1>
+                <p class="text-sm text-slate-500">Manage account preferences and notification toggles</p>
+            </div>
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-md space-y-6">
+                <div class="flex items-center space-x-4 pb-6 border-b border-slate-100">
+                    <div class="w-16 h-16 rounded-full bg-brand-100 text-brand-700 text-2xl font-bold flex items-center justify-center border-2 border-brand-200">
+                        D
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-800">demo_student</h3>
+                        <p class="text-xs text-slate-400">demo@college.edu</p>
+                        <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700">Student Account Active</span>
+                    </div>
+                </div>
+
+                <div class="space-y-4 text-xs">
+                    <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50">
+                        <div>
+                            <span class="font-bold text-slate-800 block">Email Reminders</span>
+                            <span class="text-slate-400">Receive weekly summaries of plant care tasks</span>
+                        </div>
+                        <input type="checkbox" checked class="w-4 h-4 text-brand-600 rounded">
+                    </div>
+                    <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50">
+                        <div>
+                            <span class="font-bold text-slate-800 block">Desktop In-Browser Alerts</span>
+                            <span class="text-slate-400">Trigger browser notifications when tasks are due</span>
+                        </div>
+                        <input type="checkbox" checked class="w-4 h-4 text-brand-600 rounded">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between space-y-2 sm:space-y-0">
+            <div class="flex items-center space-x-2 text-brand-700 font-semibold">
+                <i class="fa-solid fa-seedling"></i>
+                <span>PlantCare Reminder Application</span>
+            </div>
+            <div>
+                <span>College Project &copy; 2026. Interactive garden health & care tracker.</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ================= JAVASCRIPT REACTIVE LOGIC ================= -->
+    <script>
+        // Sample seed data for standalone execution on GitHub Pages
+        const INITIAL_DATA = {
+            plants: [
+                { id: 1, name: "Living Room Monstera", category: "Indoor", species: "Monstera deliciosa", waterDays: 7, fertDays: 30, lastWatered: getPastDate(4), lastFert: getPastDate(15), notes: "Near north French window. Loves misting." },
+                { id: 2, name: "Bedroom Peace Lily", category: "Flowering", species: "Spathiphyllum wallisii", waterDays: 5, fertDays: 40, lastWatered: getPastDate(6), lastFert: getPastDate(20), notes: "Droops noticeably when thirsty." },
+                { id: 3, name: "Study Desk Sansevieria", category: "Succulent", species: "Dracaena trifasciata", waterDays: 14, fertDays: 60, lastWatered: getPastDate(5), lastFert: getPastDate(10), notes: "Water only when soil is completely dry." },
+                { id: 4, name: "Balcony Trailing Pothos", category: "Indoor", species: "Epipremnum aureum", waterDays: 7, fertDays: 30, lastWatered: getPastDate(7), lastFert: getPastDate(32), notes: "Trailing on balcony planter." }
+            ],
+            library: [
+                { id: 1, name: "Snake Plant", scientific: "Sansevieria trifasciata", category: "Succulent", desc: "Hardy evergreen perennial with upright sword-like foliage. Extremely drought tolerant.", waterDays: 14, light: "Low to bright indirect", soil: "Gritty cactus mix" },
+                { id: 2, name: "Monstera Deliciosa", scientific: "Monstera deliciosa", category: "Indoor", desc: "Famous Swiss Cheese Plant with large perforated fenestrated leaves.", waterDays: 7, light: "Bright indirect light", soil: "Peat and chunky bark" },
+                { id: 3, name: "Peace Lily", scientific: "Spathiphyllum wallisii", category: "Flowering", desc: "Glossy deep green foliage with pure white spathe blooms. Expressive when thirsty.", waterDays: 5, light: "Medium indirect light", soil: "Moist, rich loam" },
+                { id: 4, name: "Golden Pothos", scientific: "Epipremnum aureum", category: "Indoor", desc: "Fast growing trailing vine with heart-shaped golden variegated leaves.", waterDays: 7, light: "Moderate to low light", soil: "Standard potting mix" },
+                { id: 5, name: "Spider Plant", scientific: "Chlorophytum comosum", category: "Indoor", desc: "Arching green and white striped foliage that produces baby offshoots.", waterDays: 7, light: "Bright indirect light", soil: "Well draining potting soil" },
+                { id: 6, name: "Aloe Vera", scientific: "Aloe barbadensis", category: "Succulent", desc: "Stemless succulent with thick gel-filled medicinal serrated leaves.", waterDays: 14, light: "Direct morning sunlight", soil: "Sandy porous mix" },
+                { id: 7, name: "ZZ Plant", scientific: "Zamioculcas zamiifolia", category: "Indoor", desc: "Architectural foliage with waxy leaves and water-storing rhizomes.", waterDays: 18, light: "Tolerates very low light", soil: "Fast-draining soil" },
+                { id: 8, name: "Holy Basil (Tulsi)", scientific: "Ocimum tenuiflorum", category: "Herb", desc: "Aromatic sacred medicinal herb with fragrant leaves and delicate flowers.", waterDays: 3, light: "Full morning sunlight (4+ hrs)", soil: "Rich fertile soil" },
+                { id: 9, name: "Jade Plant", scientific: "Crassula ovata", category: "Succulent", desc: "Tree-like succulent with fleshy jade-green oval leaves and sturdy stems.", waterDays: 12, light: "Bright sunny window", soil: "Gritty sandy soil" },
+                { id: 10, name: "Rubber Plant", scientific: "Ficus elastica", category: "Indoor", desc: "Stately indoor tree with thick glossy burgundy or dark green foliage.", waterDays: 7, light: "Bright filtered light", soil: "Chunky well aerated mix" },
+                { id: 11, name: "Rose Plant", scientific: "Rosa", category: "Outdoor", desc: "Classic fragrant perennial flowering shrub with rich continuous blooms.", waterDays: 3, light: "Full direct sun 6+ hours", soil: "Rich loamy garden soil" },
+                { id: 12, name: "Fiddle Leaf Fig", scientific: "Ficus lyrata", category: "Indoor", desc: "Dramatic sculptural tree with enormous violin-shaped leaves.", waterDays: 8, light: "Bright indirect sunlight", soil: "Fast-draining soil" }
+            ],
+            history: [
+                { date: getPastDate(4), plant: "Living Room Monstera", type: "watering", desc: "Watered with room temperature water.", status: "completed" },
+                { date: getPastDate(15), plant: "Living Room Monstera", type: "fertilizer", desc: "Fed balanced 20-20-20 liquid food.", status: "completed" },
+                { date: getPastDate(5), plant: "Study Desk Sansevieria", type: "watering", desc: "Light watering after 2 weeks.", status: "completed" }
+            ],
+            notifications: [
+                { id: 1, title: "Bedroom Peace Lily Needs Water!", msg: "Your Peace Lily is 1 day overdue for watering. Check its soil moisture.", type: "watering", read: false, time: "Today" },
+                { id: 2, title: "Balcony Trailing Pothos Due Today", msg: "Scheduled routine watering is due today.", type: "watering", read: false, time: "Today" },
+                { id: 3, title: "Balcony Pothos Fertilizer Due", msg: "Monthly fertilizer feeding scheduled today.", type: "fertilizer", read: false, time: "Yesterday" }
+            ],
+            growth: [
+                { date: getPastDate(50), plant: "Living Room Monstera", height: "22.0 cm", cond: "Healthy", notes: "Repotted into 10-inch terracotta planter." },
+                { date: getPastDate(20), plant: "Living Room Monstera", height: "28.5 cm", cond: "Flourishing", notes: "Two new leaves unfurled with deep splits." },
+                { date: getPastDate(2), plant: "Living Room Monstera", height: "33.0 cm", cond: "Flourishing", notes: "Attached aerial roots to moss pole." }
+            ]
+        };
+
+        function getPastDate(daysAgo) {
+            const d = new Date();
+            d.setDate(d.getDate() - daysAgo);
+            return d.toISOString().split('T')[0];
+        }
+
+        function getFutureDate(daysAhead) {
+            const d = new Date();
+            d.setDate(d.getDate() + daysAhead);
+            return d.toISOString().split('T')[0];
+        }
+
+        // Data Storage Accessor
+        function getData() {
+            const raw = localStorage.getItem('plantcare_data');
+            if (!raw) {
+                localStorage.setItem('plantcare_data', JSON.stringify(INITIAL_DATA));
+                return INITIAL_DATA;
+            }
+            return JSON.parse(raw);
+        }
+
+        function saveData(data) {
+            localStorage.setItem('plantcare_data', JSON.stringify(data));
+        }
+
+        function resetDataDemo() {
+            localStorage.setItem('plantcare_data', JSON.stringify(INITIAL_DATA));
+            showToast("Sample data restored!");
+            navigate('dashboard');
+        }
+
+        // Navigation Controller
+        function navigate(pageId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            const target = document.getElementById('view-' + pageId);
+            if (target) target.classList.add('active');
+
+            // Highlight nav items
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                if (btn.getAttribute('data-page') === pageId) {
+                    btn.classList.add('bg-brand-50', 'text-brand-700', 'font-semibold');
+                } else {
+                    btn.classList.remove('bg-brand-50', 'text-brand-700', 'font-semibold');
+                }
+            });
+
+            // Close mobile menu
+            document.getElementById('mobileMenu').classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Refresh specific page views
+            if (pageId === 'dashboard') renderDashboard();
+            if (pageId === 'plants') renderPlants();
+            if (pageId === 'library') renderLibrary();
+            if (pageId === 'reminders') renderReminders();
+            if (pageId === 'calendar') renderCalendar();
+            if (pageId === 'notifications') renderNotifications();
+            if (pageId === 'history') renderHistory();
+            if (pageId === 'health') prepareHealthView();
+            if (pageId === 'watering') prepareWateringView();
+            if (pageId === 'growth') renderGrowth();
+        }
+
+        // Toast feedback
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => { toast.classList.add('hidden'); }, 3000);
+        }
+
+        // Calculations helper
+        function getNextWaterDate(plant) {
+            if (!plant.lastWatered) return getPastDate(0);
+            const d = new Date(plant.lastWatered);
+            d.setDate(d.getDate() + (plant.waterDays || 7));
+            return d.toISOString().split('T')[0];
+        }
+
+        function getDaysUntilWater(plant) {
+            const nextDate = new Date(getNextWaterDate(plant));
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            nextDate.setHours(0,0,0,0);
+            return Math.round((nextDate - today) / (1000 * 60 * 60 * 24));
+        }
+
+        // ================= RENDER: DASHBOARD =================
+        function renderDashboard() {
+            const data = getData();
+            const totalPlants = data.plants.length;
+            const needsWaterPlants = data.plants.filter(p => getDaysUntilWater(p) <= 0);
+
+            document.getElementById('statTotalPlants').textContent = totalPlants;
+            document.getElementById('statNeedsWater').textContent = needsWaterPlants.length;
+            document.getElementById('statFertilizerDue').textContent = '1';
+            document.getElementById('statDueToday').textContent = needsWaterPlants.filter(p => getDaysUntilWater(p) === 0).length;
+
+            const bannerMsg = document.getElementById('dashBannerMsg');
+            if (needsWaterPlants.length > 0) {
+                bannerMsg.innerHTML = `You have <strong class="underline font-bold">${needsWaterPlants.length} plant(s)</strong> requiring water today. Keep your garden healthy!`;
+                document.getElementById('statWaterStatus').textContent = "Action required";
+                document.getElementById('statWaterStatus').className = "text-xs font-bold text-rose-500 mt-1 inline-block";
+            } else {
+                bannerMsg.textContent = "All your plants are currently well-hydrated and on schedule. Enjoy your garden!";
+                document.getElementById('statWaterStatus').textContent = "Up to date";
+                document.getElementById('statWaterStatus').className = "text-xs text-slate-500 mt-1 inline-block";
+            }
+
+            // Urgent list
+            const urgentCard = document.getElementById('dashUrgentCard');
+            const urgentList = document.getElementById('dashUrgentList');
+            if (needsWaterPlants.length > 0) {
+                urgentCard.classList.remove('hidden');
+                urgentList.innerHTML = needsWaterPlants.map(p => `
+                    <div class="py-3 flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
+                                <i class="fa-solid fa-leaf"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-xs sm:text-sm">${p.name}</h4>
+                                <p class="text-[11px] text-rose-600 font-semibold">Water due: ${getNextWaterDate(p)} (${getDaysUntilWater(p) <= 0 ? 'Overdue/Today' : ''})</p>
+                            </div>
+                        </div>
+                        <button onclick="quickWater(${p.id})" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold shadow-sm transition-colors flex items-center space-x-1">
+                            <i class="fa-solid fa-droplet text-[10px]"></i>
+                            <span>Mark Watered</span>
+                        </button>
+                    </div>
+                `).join('');
+            } else {
+                urgentCard.classList.add('hidden');
+            }
+
+            // Today's Care Tasks
+            const todayTasksList = document.getElementById('dashTodayTasksList');
+            todayTasksList.innerHTML = `
+                <div class="py-3 flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <span class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-xs"><i class="fa-solid fa-droplet"></i></span>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800">Balcony Trailing Pothos</h4>
+                            <p class="text-[11px] text-slate-400">Scheduled routine hydration</p>
+                        </div>
+                    </div>
+                    <button onclick="quickWater(4)" class="px-3 py-1 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg text-xs font-bold border border-emerald-200">&check; Done</button>
+                </div>
+            `;
+
+            // Recent Growth
+            const growthList = document.getElementById('dashGrowthList');
+            growthList.innerHTML = data.growth.map(g => `
+                <div class="border border-slate-100 rounded-2xl p-2.5 bg-slate-50/50">
+                    <div class="w-full h-20 bg-emerald-100/50 rounded-xl flex items-center justify-center text-2xl text-emerald-600 mb-2">
+                        <i class="fa-solid fa-leaf"></i>
+                    </div>
+                    <h5 class="text-xs font-bold text-slate-800 truncate">${g.plant}</h5>
+                    <p class="text-[10px] text-slate-500">${g.height} &bull; ${g.cond}</p>
+                    <span class="text-[9px] text-slate-400 block mt-1">${g.date}</span>
+                </div>
+            `).join('');
+
+            // Recent Alerts
+            const alertsList = document.getElementById('dashAlertsList');
+            alertsList.innerHTML = data.notifications.slice(0, 3).map(n => `
+                <div class="p-3 rounded-2xl ${n.read ? 'bg-slate-50' : 'bg-brand-50/60 border border-brand-100'} text-xs">
+                    <span class="font-bold text-slate-800">${n.title}</span>
+                    <p class="text-slate-600 mt-0.5 text-[11px]">${n.msg}</p>
+                </div>
+            `).join('');
+
+            // Update badge
+            const unreadCount = data.notifications.filter(n => !n.read).length;
+            const badge = document.getElementById('unreadBadge');
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        // Quick Water Action
+        function quickWater(plantId) {
+            const data = getData();
+            const plant = data.plants.find(p => p.id === plantId);
+            if (plant) {
+                plant.lastWatered = new Date().toISOString().split('T')[0];
+                data.history.unshift({
+                    date: plant.lastWatered,
+                    plant: plant.name,
+                    type: "watering",
+                    desc: "Watered plant on schedule.",
+                    status: "completed"
+                });
+                saveData(data);
+                showToast(`Watered ${plant.name}! Schedule updated.`);
+                renderDashboard();
+                renderPlants();
+            }
+        }
+
+        // Quick Fertilize Action
+        function quickFertilize(plantId) {
+            const data = getData();
+            const plant = data.plants.find(p => p.id === plantId);
+            if (plant) {
+                plant.lastFert = new Date().toISOString().split('T')[0];
+                data.history.unshift({
+                    date: plant.lastFert,
+                    plant: plant.name,
+                    type: "fertilizer",
+                    desc: "Applied balanced fertilizer nutrients.",
+                    status: "completed"
+                });
+                saveData(data);
+                showToast(`Fertilized ${plant.name}! Schedule updated.`);
+                renderDashboard();
+                renderPlants();
+            }
+        }
+
+        // ================= RENDER: PLANTS =================
+        function renderPlants() {
+            const data = getData();
+            const search = (document.getElementById('plantSearchInput').value || '').toLowerCase();
+            const cat = document.getElementById('plantCategorySelect').value;
+
+            let filtered = data.plants;
+            if (search) {
+                filtered = filtered.filter(p => p.name.toLowerCase().includes(search) || (p.species && p.species.toLowerCase().includes(search)));
+            }
+            if (cat !== 'All') {
+                filtered = filtered.filter(p => p.category === cat);
+            }
+
+            const grid = document.getElementById('plantsGrid');
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-3 text-center py-12 text-slate-400 text-sm">No plants match your filter criteria.</div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(p => {
+                const days = getDaysUntilWater(p);
+                const isOverdue = days <= 0;
+                return `
+                <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between hover:shadow-md transition-shadow">
+                    <div class="h-44 bg-emerald-50 flex items-center justify-center text-4xl text-emerald-500 relative">
+                        <i class="fa-solid fa-seedling"></i>
+                        <span class="absolute top-3 left-3 bg-white/90 px-2.5 py-0.5 rounded-full text-xs font-bold text-slate-700">${p.category}</span>
+                        ${isOverdue ? `<span class="absolute top-3 right-3 bg-rose-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold">Needs Water</span>` : ''}
+                    </div>
+                    <div class="p-5 flex-grow flex flex-col justify-between space-y-4">
+                        <div>
+                            <h3 class="font-bold text-base text-slate-800">${p.name}</h3>
+                            <p class="text-xs text-slate-400 italic">${p.species || 'Common species'}</p>
+                            <div class="mt-3 grid grid-cols-2 gap-2 text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                                <div>
+                                    <span class="text-slate-400 text-[9px] font-bold uppercase block">Watering</span>
+                                    <span class="font-semibold ${isOverdue ? 'text-rose-600' : 'text-slate-700'}">${isOverdue ? 'Due today' : `In ${days} days`}</span>
+                                </div>
+                                <div>
+                                    <span class="text-slate-400 text-[9px] font-bold uppercase block">Every</span>
+                                    <span class="font-semibold text-slate-700">${p.waterDays} days</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+                            <button onclick="quickWater(${p.id})" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-bold flex items-center space-x-1">
+                                <i class="fa-solid fa-droplet text-blue-500"></i>
+                                <span>Water</span>
+                            </button>
+                            <button onclick="deletePlant(${p.id})" class="p-2 text-slate-400 hover:text-rose-600 rounded-lg" title="Delete"><i class="fa-regular fa-trash-can"></i></button>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        function deletePlant(id) {
+            if (!confirm("Are you sure you want to remove this plant?")) return;
+            const data = getData();
+            data.plants = data.plants.filter(p => p.id !== id);
+            saveData(data);
+            showToast("Plant removed from garden.");
+            renderPlants();
+            renderDashboard();
+        }
+
+        // Add Plant Form Submit
+        function handleAddPlant(e) {
+            e.preventDefault();
+            const data = getData();
+            const newPlant = {
+                id: Date.now(),
+                name: document.getElementById('addPlantName').value.trim(),
+                category: document.getElementById('addPlantCategory').value,
+                species: document.getElementById('addPlantSpecies').value.trim(),
+                waterDays: parseInt(document.getElementById('addPlantWaterDays').value) || 7,
+                fertDays: parseInt(document.getElementById('addPlantFertDays').value) || 30,
+                lastWatered: document.getElementById('addPlantLastWatered').value || new Date().toISOString().split('T')[0],
+                lastFert: document.getElementById('addPlantLastFertilized').value || '',
+                notes: document.getElementById('addPlantNotes').value.trim()
+            };
+            data.plants.push(newPlant);
+            saveData(data);
+            showToast(`Added ${newPlant.name} to your garden!`);
+            document.getElementById('addPlantForm').reset();
+            navigate('plants');
+        }
+
+        // ================= RENDER: LIBRARY =================
+        function renderLibrary() {
+            const data = getData();
+            const search = (document.getElementById('libSearchInput').value || '').toLowerCase();
+            const cat = document.getElementById('libCategorySelect').value;
+
+            let filtered = data.library;
+            if (search) {
+                filtered = filtered.filter(p => p.name.toLowerCase().includes(search) || p.desc.toLowerCase().includes(search));
+            }
+            if (cat !== 'All') {
+                filtered = filtered.filter(p => p.category === cat);
+            }
+
+            const grid = document.getElementById('libraryGrid');
+            grid.innerHTML = filtered.map(p => `
+                <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 flex flex-col justify-between hover:shadow-md transition-shadow">
+                    <div>
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700">${p.category}</span>
+                                <h3 class="font-bold text-base text-slate-800 mt-2">${p.name}</h3>
+                                <p class="text-xs text-slate-400 italic mb-2">${p.scientific}</p>
+                            </div>
+                            <div class="w-10 h-10 rounded-xl bg-brand-100 text-brand-700 flex items-center justify-center text-lg"><i class="fa-solid fa-seedling"></i></div>
+                        </div>
+                        <p class="text-xs text-slate-600 line-clamp-3 leading-relaxed mb-3">${p.desc}</p>
+                        <div class="space-y-1 text-[11px] bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-slate-600">
+                            <div><i class="fa-solid fa-droplet text-blue-500 mr-1"></i> Water: <strong>Every ${p.waterDays} days</strong></div>
+                            <div><i class="fa-solid fa-sun text-amber-500 mr-1"></i> Light: <strong>${p.light}</strong></div>
+                        </div>
+                    </div>
+                    <div class="pt-4 border-t border-slate-100 mt-4 flex items-center justify-end">
+                        <button onclick="cloneFromLibrary('${p.name}', '${p.category}', '${p.scientific}', ${p.waterDays})" class="px-3.5 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-bold shadow-sm flex items-center space-x-1">
+                            <i class="fa-solid fa-plus text-[10px]"></i>
+                            <span>Add to Garden</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function cloneFromLibrary(name, category, species, waterDays) {
+            navigate('add-plant');
+            document.getElementById('addPlantName').value = name;
+            document.getElementById('addPlantCategory').value = category;
+            document.getElementById('addPlantSpecies').value = species;
+            document.getElementById('addPlantWaterDays').value = waterDays;
+            showToast(`Prefilled ${name} from library!`);
+        }
+
+        // ================= RENDER: REMINDERS =================
+        let currentRemFilter = 'all';
+        function setReminderFilter(type) {
+            currentRemFilter = type;
+            renderReminders();
+        }
+
+        function renderReminders() {
+            const data = getData();
+            const container = document.getElementById('remindersContainer');
+            
+            const reminders = [];
+            data.plants.forEach(p => {
+                const waterDue = getNextWaterDate(p);
+                const daysUntil = getDaysUntilWater(p);
+                if (currentRemFilter === 'all' || currentRemFilter === 'watering') {
+                    reminders.push({ plantId: p.id, plantName: p.name, type: 'watering', due: waterDue, days: daysUntil, freq: p.waterDays });
+                }
+                if (currentRemFilter === 'all' || currentRemFilter === 'fertilizer') {
+                    reminders.push({ plantId: p.id, plantName: p.name, type: 'fertilizer', due: getFutureDate(10), days: 10, freq: p.fertDays });
+                }
+            });
+
+            reminders.sort((a,b) => a.days - b.days);
+
+            container.innerHTML = `
+                <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm space-y-4">
+                    <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Scheduled Care Reminders</h3>
+                    <div class="divide-y divide-slate-100">
+                        ${reminders.map(r => `
+                            <div class="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div class="flex items-center space-x-3">
+                                    <span class="w-10 h-10 rounded-xl ${r.type === 'watering' ? 'bg-blue-100 text-blue-600' : 'bg-purple-100 text-purple-600'} flex items-center justify-center text-sm">
+                                        <i class="fa-solid ${r.type === 'watering' ? 'fa-droplet' : 'fa-bottle-droplet'}"></i>
+                                    </span>
+                                    <div>
+                                        <h4 class="font-bold text-slate-800 text-sm">${r.plantName}</h4>
+                                        <p class="text-xs ${r.days <= 0 ? 'text-rose-600 font-bold' : 'text-slate-400'}">
+                                            ${r.type.toUpperCase()} &bull; Due ${r.due} (${r.days <= 0 ? 'Overdue/Today' : 'in ' + r.days + ' days'})
+                                        </p>
+                                    </div>
+                                </div>
+                                <button onclick="${r.type === 'watering' ? `quickWater(${r.plantId})` : `quickFertilize(${r.plantId})`}" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold self-end sm:self-auto">
+                                    &check; Mark Done
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // ================= RENDER: CALENDAR =================
+        let calCurrentMonth = new Date().getMonth();
+        let calCurrentYear = new Date().getFullYear();
+
+        function changeMonth(delta) {
+            calCurrentMonth += delta;
+            if (calCurrentMonth > 11) { calCurrentMonth = 0; calCurrentYear++; }
+            if (calCurrentMonth < 0) { calCurrentMonth = 11; calCurrentYear--; }
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+            document.getElementById('calMonthTitle').textContent = `${months[calCurrentMonth]} ${calCurrentYear}`;
+
+            const grid = document.getElementById('calendarGrid');
+            const firstDay = new Date(calCurrentYear, calCurrentMonth, 1).getDay();
+            const daysInMonth = new Date(calCurrentYear, calCurrentMonth + 1, 0).getDate();
+
+            let cells = '';
+            for (let i = 0; i < firstDay; i++) {
+                cells += `<div class="min-h-[85px] p-2 bg-slate-50/50"></div>`;
+            }
+
+            const today = new Date();
+            const isThisMonth = (today.getMonth() === calCurrentMonth && today.getFullYear() === calCurrentYear);
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const isToday = isThisMonth && (today.getDate() === d);
+                // Sample dummy event distribution for visual polish
+                const hasWater = (d % 4 === 0 || d === 16);
+                const hasFert = (d === 10 || d === 25);
+
+                cells += `
+                    <div class="min-h-[85px] p-2 flex flex-col justify-between ${isToday ? 'bg-emerald-50/30 ring-2 ring-brand-500 ring-inset rounded-lg' : 'bg-white'}">
+                        <span class="text-xs font-bold ${isToday ? 'w-6 h-6 rounded-full bg-brand-600 text-white flex items-center justify-center' : 'text-slate-700'}">${d}</span>
+                        <div class="space-y-1">
+                            ${hasWater ? `<span class="block px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-100 text-blue-700 truncate"><i class="fa-solid fa-droplet mr-0.5"></i> Water</span>` : ''}
+                            ${hasFert ? `<span class="block px-1.5 py-0.5 rounded text-[9px] font-bold bg-purple-100 text-purple-700 truncate"><i class="fa-solid fa-bottle-droplet mr-0.5"></i> Feed</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+            grid.innerHTML = cells;
+        }
+
+        // ================= RENDER: NOTIFICATIONS =================
+        function renderNotifications() {
+            const data = getData();
+            const list = document.getElementById('notificationsList');
+            list.innerHTML = data.notifications.map(n => `
+                <div class="p-4 rounded-2xl border transition-all flex items-start justify-between gap-4 ${n.read ? 'bg-white border-slate-100' : 'bg-brand-50/50 border-brand-200 shadow-sm'}">
+                    <div class="flex items-start space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-sm shrink-0">
+                            <i class="fa-solid fa-droplet"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800">${n.title}</h4>
+                            <p class="text-xs text-slate-600 mt-1">${n.msg}</p>
+                            <span class="text-[10px] text-slate-400 mt-1 block">${n.time}</span>
+                        </div>
+                    </div>
+                    ${!n.read ? `<span class="px-2 py-0.5 bg-brand-600 text-white text-[10px] font-bold rounded-full">New</span>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function markAllNotificationsRead() {
+            const data = getData();
+            data.notifications.forEach(n => n.read = true);
+            saveData(data);
+            showToast("All notifications marked as read.");
+            renderNotifications();
+            renderDashboard();
+        }
+
+        // ================= RENDER: HISTORY =================
+        function renderHistory() {
+            const data = getData();
+            const body = document.getElementById('historyTableBody');
+            body.innerHTML = data.history.map(h => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="py-3 px-6 font-bold text-slate-700 whitespace-nowrap">${h.date}</td>
+                    <td class="py-3 px-6 font-bold text-slate-800">${h.plant}</td>
+                    <td class="py-3 px-6"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${h.type === 'watering' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}">${h.type}</span></td>
+                    <td class="py-3 px-6 text-slate-600">${h.desc}</td>
+                    <td class="py-3 px-6 text-emerald-600 font-bold">&check; ${h.status}</td>
+                </tr>
+            `).join('');
+        }
+
+        // ================= HEALTH CHECKER =================
+        function prepareHealthView() {
+            const data = getData();
+            const select = document.getElementById('healthPlantSelect');
+            select.innerHTML = data.plants.map(p => `<option value="${p.name}">${p.name} (${p.category})</option>`).join('') + `<option value="Other Plant">Other / Unspecified</option>`;
+        }
+
+        function appendSymptom(text) {
+            const ta = document.getElementById('healthSymptoms');
+            if (!ta.value.includes(text)) {
+                ta.value = ta.value ? ta.value + ', ' + text : text;
+            }
+        }
+
+        function handleHealthCheck(e) {
+            e.preventDefault();
+            const plant = document.getElementById('healthPlantSelect').value;
+            const symptoms = (document.getElementById('healthSymptoms').value || '').toLowerCase();
+
+            let issue = "General Acclimation or Light Stress";
+            let causes = "Environmental temperature fluctuation, drafty rooms, or minor moisture inconsistency.";
+            let suggestions = "Position in bright filtered light, verify pot drainage holes, and wait 3 days before watering.";
+
+            if (symptoms.includes('yellow') || symptoms.includes('mushy')) {
+                issue = "Overwatering or Early Root Rot";
+                causes = "Potting soil remaining saturated for prolonged periods, suffocating root oxygen intake.";
+                suggestions = "Allow soil to completely dry out. Ensure drainage holes are unblocked. Trim any decayed root tips.";
+            } else if (symptoms.includes('brown') || symptoms.includes('crisp') || symptoms.includes('dry')) {
+                issue = "Underwatering or Dry Indoor Air";
+                causes = "Extended drought stress or low ambient room humidity from air conditioning or heaters.";
+                suggestions = "Perform deep soaking watering until water drains freely. Mist foliage or place on pebble water tray.";
+            } else if (symptoms.includes('web') || symptoms.includes('speckle') || symptoms.includes('bugs')) {
+                issue = "Spider Mites or Sap-Sucking Pests";
+                causes = "Warm, dry microclimate allowing pest colonization on leaf undersides.";
+                suggestions = "Isolate plant. Gently wash foliage under shower stream, then apply organic neem oil spray once weekly.";
+            }
+
+            document.getElementById('reportIssue').textContent = issue;
+            document.getElementById('reportCauses').textContent = causes;
+            document.getElementById('reportSuggestions').textContent = suggestions;
+            document.getElementById('healthReportCard').classList.remove('hidden');
+            showToast("Botanical pathology diagnosis generated!");
+        }
+
+        // ================= SMART WATERING DECISION =================
+        function prepareWateringView() {
+            const data = getData();
+            const select = document.getElementById('waterPlantSelect');
+            select.innerHTML = data.plants.map(p => `<option value="${p.id}">${p.name} (Water frequency: every ${p.waterDays} days)</option>`).join('');
+        }
+
+        function handleSmartWater(e) {
+            e.preventDefault();
+            const data = getData();
+            const plantId = parseInt(document.getElementById('waterPlantSelect').value);
+            const plant = data.plants.find(p => p.id === plantId) || data.plants[0];
+            const soil = document.querySelector('input[name="soilCond"]:checked')?.value || 'Dry';
+
+            const card = document.getElementById('waterDecisionCard');
+            const title = document.getElementById('waterDecisionTitle');
+            const expl = document.getElementById('waterDecisionExpl');
+            const plantTag = document.getElementById('waterDecisionPlant');
+            const icon = document.getElementById('waterDecisionIcon');
+
+            plantTag.textContent = `Decision for ${plant.name}`;
+
+            if (soil === 'Wet') {
+                title.textContent = "Avoid Watering Now";
+                expl.textContent = `The potting mix around ${plant.name} is currently wet. Adding water now risks suffocating the root system. Wait until the top 2 inches dry out completely.`;
+                card.className = "rounded-3xl p-6 border shadow-md space-y-3 bg-rose-50 border-rose-200 text-rose-950";
+                icon.className = "w-12 h-12 rounded-2xl flex items-center justify-center text-xl bg-rose-600 text-white";
+                icon.innerHTML = `<i class="fa-solid fa-ban"></i>`;
+            } else if (soil === 'Slightly Moist') {
+                title.textContent = "Wait and Check Later";
+                expl.textContent = `The soil still retains residual moisture. ${plant.name} does not urgently require water today. Re-test soil moisture in 24 to 48 hours.`;
+                card.className = "rounded-3xl p-6 border shadow-md space-y-3 bg-amber-50 border-amber-200 text-amber-950";
+                icon.className = "w-12 h-12 rounded-2xl flex items-center justify-center text-xl bg-amber-500 text-white";
+                icon.innerHTML = `<i class="fa-solid fa-hourglass-half"></i>`;
+            } else {
+                title.textContent = "Water Now";
+                expl.textContent = `The soil has dried out and ${plant.name} is ready for hydration. Give it a thorough, deep watering until water drains freely from the pot base.`;
+                card.className = "rounded-3xl p-6 border shadow-md space-y-3 bg-blue-50 border-blue-200 text-blue-950";
+                icon.className = "w-12 h-12 rounded-2xl flex items-center justify-center text-xl bg-blue-600 text-white";
+                icon.innerHTML = `<i class="fa-solid fa-droplet"></i>`;
+            }
+
+            card.classList.remove('hidden');
+            showToast("Watering decision calculated!");
+        }
+
+        // ================= GROWTH TRACKER =================
+        function renderGrowth() {
+            const data = getData();
+            const list = document.getElementById('growthTimelineList');
+            list.innerHTML = data.growth.map(g => `
+                <div class="p-4 rounded-2xl border border-slate-100 bg-slate-50/50 flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="font-bold text-slate-800 text-xs">${g.plant}</span>
+                            <span class="text-[10px] text-slate-400">&bull; ${g.date}</span>
+                        </div>
+                        <p class="text-xs text-brand-700 font-bold mt-0.5">Recorded Height: ${g.height}</p>
+                        <p class="text-xs text-slate-500 italic mt-1 font-mono">"${g.notes}"</p>
+                    </div>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">${g.cond}</span>
+                </div>
+            `).join('');
+        }
+
+        // Mobile menu toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        });
+
+        // Initialize on DOM load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderDashboard();
+        });
+    </script>
+</body>
+</html>
