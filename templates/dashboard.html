@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- Welcome & Quick Action Header -->
+    <div class="bg-gradient-to-r from-emerald-800 to-brand-700 rounded-3xl p-6 sm:p-8 text-white shadow-lg relative overflow-hidden">
+        <div class="relative z-10 max-w-2xl">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-600/50 backdrop-blur-sm border border-emerald-400/30 text-emerald-100 mb-3">
+                <i class="fa-solid fa-leaf mr-1.5 text-xs"></i> Garden Overview
+            </span>
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Good day, {{ current_user.username }}!</h1>
+            <p class="mt-2 text-emerald-100 text-sm sm:text-base leading-relaxed">
+                {% if plants_need_water %}
+                    You have <span class="font-bold underline decoration-amber-400">{{ plants_need_water|length }} plant(s)</span> requiring water today. Keep your garden flourishing!
+                {% else %}
+                    All your plants are currently well-hydrated and on schedule. Enjoy your garden!
+                {% endif %}
+            </p>
+
+            <div class="mt-6 flex flex-wrap gap-3">
+                <a href="{{ url_for('plants.add') }}" class="inline-flex items-center px-4 py-2.5 bg-white text-brand-800 rounded-xl font-semibold text-sm shadow hover:bg-emerald-50 transition-all">
+                    <i class="fa-solid fa-plus mr-2 text-xs"></i> Add Plant
+                </a>
+                <a href="{{ url_for('smart_watering.index') }}" class="inline-flex items-center px-4 py-2.5 bg-emerald-600/60 hover:bg-emerald-600 border border-emerald-400/40 text-white rounded-xl font-semibold text-sm backdrop-blur-sm transition-all">
+                    <i class="fa-solid fa-droplet mr-2 text-xs"></i> Smart Watering
+                </a>
+                <a href="{{ url_for('health.index') }}" class="inline-flex items-center px-4 py-2.5 bg-emerald-600/60 hover:bg-emerald-600 border border-emerald-400/40 text-white rounded-xl font-semibold text-sm backdrop-blur-sm transition-all">
+                    <i class="fa-solid fa-heart-pulse mr-2 text-xs"></i> Health Checker
+                </a>
+            </div>
+        </div>
+
+        <div class="absolute -right-8 -bottom-8 opacity-15 text-white text-9xl pointer-events-none hidden sm:block">
+            <i class="fa-solid fa-seedling"></i>
+        </div>
+    </div>
+
+    <!-- 4 Key Metric Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Total Plants -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Plants</p>
+                <h3 class="text-2xl font-bold text-slate-800 mt-1">{{ total_plants }}</h3>
+                <a href="{{ url_for('plants.index') }}" class="text-xs text-brand-600 font-semibold hover:underline mt-1 inline-block">View Collection &rarr;</a>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-leaf"></i>
+            </div>
+        </div>
+
+        <!-- Needs Watering -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Needs Water</p>
+                <h3 class="text-2xl font-bold {{ 'text-rose-600' if plants_need_water else 'text-slate-800' }} mt-1">
+                    {{ plants_need_water|length }}
+                </h3>
+                <span class="text-xs text-slate-500 mt-1 inline-block">{{ 'Action needed' if plants_need_water else 'Up to date' }}</span>
+            </div>
+            <div class="w-12 h-12 rounded-2xl {{ 'bg-rose-50 text-rose-600' if plants_need_water else 'bg-blue-50 text-blue-600' }} flex items-center justify-center text-xl">
+                <i class="fa-solid fa-droplet"></i>
+            </div>
+        </div>
+
+        <!-- Upcoming Fertilizer -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Fertilizer Due</p>
+                <h3 class="text-2xl font-bold text-slate-800 mt-1">{{ upcoming_fertilizer|length }}</h3>
+                <a href="{{ url_for('reminders.index', type='fertilizer') }}" class="text-xs text-purple-600 font-semibold hover:underline mt-1 inline-block">View tasks &rarr;</a>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-bottle-droplet"></i>
+            </div>
+        </div>
+
+        <!-- Active Today -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Due Today</p>
+                <h3 class="text-2xl font-bold text-slate-800 mt-1">{{ todays_activities|length }}</h3>
+                <a href="{{ url_for('calendar.index') }}" class="text-xs text-amber-600 font-semibold hover:underline mt-1 inline-block">Check Calendar &rarr;</a>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+                <i class="fa-solid fa-calendar-check"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Grid: Care Tasks & Notifications -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Left 2 Cols: Today's Tasks & Urgent Watering -->
+        <div class="lg:col-span-2 space-y-6">
+
+            <!-- Urgent Watering Required -->
+            {% if plants_need_water %}
+            <div class="bg-white rounded-2xl p-6 border border-rose-100 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-2 text-rose-600">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <h2 class="text-base font-bold text-slate-800">Plants Requiring Water Now</h2>
+                    </div>
+                    <span class="text-xs bg-rose-100 text-rose-800 font-bold px-2.5 py-0.5 rounded-full">Urgent</span>
+                </div>
+
+                <div class="divide-y divide-slate-100">
+                    {% for plant in plants_need_water %}
+                    <div class="py-3.5 flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            {% if plant.image_path %}
+                            <img src="/{{ plant.image_path }}" alt="{{ plant.name }}" class="w-12 h-12 rounded-xl object-cover border border-slate-200">
+                            {% else %}
+                            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
+                                <i class="fa-solid fa-seedling"></i>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <a href="{{ url_for('plants.detail', plant_id=plant.id) }}" class="font-semibold text-slate-800 hover:text-brand-600 text-sm">
+                                    {{ plant.name }}
+                                </a>
+                                <p class="text-xs text-slate-400">
+                                    {{ plant.category or 'Indoor' }} &bull; Next water was due: <span class="text-rose-500 font-semibold">{{ plant.next_watering_date }}</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-2">
+                            <form method="POST" action="{{ url_for('plants.quick_water', plant_id=plant.id) }}">
+                                <button type="submit" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-colors flex items-center space-x-1">
+                                    <i class="fa-solid fa-droplet text-[10px]"></i>
+                                    <span>Mark Watered</span>
+                                </button>
+                            </form>
+                            <a href="{{ url_for('smart_watering.index') }}" class="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 text-xs" title="Smart Check">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Today's Care Activities -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-base font-bold text-slate-800 flex items-center space-x-2">
+                        <i class="fa-regular fa-calendar-check text-brand-600"></i>
+                        <span>Today's Care Tasks</span>
+                    </h2>
+                    <span class="text-xs text-slate-400">{{ today.strftime('%B %d, %Y') }}</span>
+                </div>
+
+                {% if todays_activities %}
+                <div class="divide-y divide-slate-100">
+                    {% for reminder in todays_activities %}
+                    <div class="py-3 flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <span class="w-8 h-8 rounded-lg {{ 'bg-blue-100 text-blue-600' if reminder.reminder_type == 'watering' else 'bg-purple-100 text-purple-600' }} flex items-center justify-center text-xs">
+                                <i class="fa-solid {{ 'fa-droplet' if reminder.reminder_type == 'watering' else 'fa-bottle-droplet' }}"></i>
+                            </span>
+                            <div>
+                                <h4 class="text-sm font-semibold text-slate-800">{{ reminder.plant.name }}</h4>
+                                <p class="text-xs text-slate-400 capitalize">{{ reminder.reminder_type }} activity</p>
+                            </div>
+                        </div>
+
+                        <form method="POST" action="{{ url_for('reminders.complete', reminder_id=reminder.id) }}">
+                            <button type="submit" class="px-3 py-1 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg text-xs font-semibold border border-emerald-200 transition-colors">
+                                <i class="fa-solid fa-check mr-1"></i> Done
+                            </button>
+                        </form>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-8">
+                    <div class="w-12 h-12 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center mx-auto mb-2">
+                        <i class="fa-solid fa-check text-xl text-emerald-500"></i>
+                    </div>
+                    <p class="text-sm font-medium text-slate-600">No pending care tasks scheduled for today.</p>
+                    <p class="text-xs text-slate-400 mt-1">Sit back and enjoy watching your plants grow!</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Recent Plant Growth Updates -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-base font-bold text-slate-800 flex items-center space-x-2">
+                        <i class="fa-solid fa-arrow-trend-up text-emerald-600"></i>
+                        <span>Recent Growth Updates</span>
+                    </h2>
+                    <a href="{{ url_for('growth.index') }}" class="text-xs font-semibold text-brand-600 hover:underline">View All &rarr;</a>
+                </div>
+
+                {% if recent_growth %}
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {% for g in recent_growth %}
+                    <div class="border border-slate-100 rounded-xl p-2.5 hover:shadow-md transition-shadow bg-slate-50/50">
+                        {% if g.image_path %}
+                        <img src="/{{ g.image_path }}" alt="Growth photo" class="w-full h-24 object-cover rounded-lg mb-2">
+                        {% else %}
+                        <div class="w-full h-24 bg-emerald-100/50 text-emerald-600 rounded-lg flex items-center justify-center text-xl mb-2">
+                            <i class="fa-solid fa-image"></i>
+                        </div>
+                        {% endif %}
+                        <h5 class="text-xs font-bold text-slate-800 truncate">{{ g.plant.name }}</h5>
+                        <p class="text-[11px] text-slate-500">
+                            {% if g.height_cm %}{{ g.height_cm }} cm &bull; {% endif %}{{ g.condition }}
+                        </p>
+                        <span class="text-[10px] text-slate-400 block mt-1">{{ g.observation_date }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-6 text-slate-400 text-xs">
+                    <p>No growth photos or height logs yet.</p>
+                    <a href="{{ url_for('growth.index') }}" class="text-brand-600 font-semibold hover:underline mt-1 inline-block">Track growth now</a>
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+
+        <!-- Right Col: Quick Access & Notifications -->
+        <div class="space-y-6">
+
+            <!-- Quick Access Menu -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4">Quick Features</h3>
+                <div class="grid grid-cols-2 gap-3 text-center">
+                    <a href="{{ url_for('plants.add') }}" class="p-3.5 rounded-xl border border-slate-100 hover:border-brand-200 hover:bg-brand-50/50 transition-all group">
+                        <i class="fa-solid fa-circle-plus text-xl text-brand-600 group-hover:scale-110 transition-transform mb-1.5 block"></i>
+                        <span class="text-xs font-semibold text-slate-700">Add Plant</span>
+                    </a>
+                    <a href="{{ url_for('library.index') }}" class="p-3.5 rounded-xl border border-slate-100 hover:border-brand-200 hover:bg-brand-50/50 transition-all group">
+                        <i class="fa-solid fa-book-bookmark text-xl text-blue-600 group-hover:scale-110 transition-transform mb-1.5 block"></i>
+                        <span class="text-xs font-semibold text-slate-700">Plant Library</span>
+                    </a>
+                    <a href="{{ url_for('smart_watering.index') }}" class="p-3.5 rounded-xl border border-slate-100 hover:border-brand-200 hover:bg-brand-50/50 transition-all group">
+                        <i class="fa-solid fa-droplet text-xl text-cyan-600 group-hover:scale-110 transition-transform mb-1.5 block"></i>
+                        <span class="text-xs font-semibold text-slate-700">Smart Water</span>
+                    </a>
+                    <a href="{{ url_for('health.index') }}" class="p-3.5 rounded-xl border border-slate-100 hover:border-brand-200 hover:bg-brand-50/50 transition-all group">
+                        <i class="fa-solid fa-heart-pulse text-xl text-rose-500 group-hover:scale-110 transition-transform mb-1.5 block"></i>
+                        <span class="text-xs font-semibold text-slate-700">Health Check</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Recent Notifications -->
+            <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider flex items-center space-x-2">
+                        <i class="fa-regular fa-bell text-slate-500"></i>
+                        <span>Recent Alerts</span>
+                    </h3>
+                    <a href="{{ url_for('notifications.index') }}" class="text-xs font-semibold text-brand-600 hover:underline">All &rarr;</a>
+                </div>
+
+                {% if recent_notifications %}
+                <div class="space-y-3">
+                    {% for notif in recent_notifications %}
+                    <div class="p-3 rounded-xl {{ 'bg-slate-50' if notif.is_read else 'bg-brand-50/60 border border-brand-100' }} text-xs">
+                        <div class="flex items-start justify-between">
+                            <span class="font-bold text-slate-800">{{ notif.title }}</span>
+                            {% if not notif.is_read %}
+                            <span class="w-2 h-2 rounded-full bg-brand-500 mt-1"></span>
+                            {% endif %}
+                        </div>
+                        <p class="text-slate-600 mt-1">{{ notif.message }}</p>
+                        <span class="text-[10px] text-slate-400 mt-1.5 block">{{ notif.created_at.strftime('%b %d, %H:%M') }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-xs text-slate-400 text-center py-4">No recent notifications.</p>
+                {% endif %}
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

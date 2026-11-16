@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Health Check History{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">Health Check History</h1>
+            <p class="text-sm text-slate-500">Record of previous diagnostic reports and symptom evaluations</p>
+        </div>
+        <a href="{{ url_for('health.index') }}" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold shadow-sm">
+            <i class="fa-solid fa-plus mr-1"></i> New Health Check
+        </a>
+    </div>
+
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        {% if reports %}
+        <div class="divide-y divide-slate-100">
+            {% for r in reports %}
+            <div class="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/50 transition-colors">
+                <div class="flex items-start space-x-4">
+                    {% if r.image_path %}
+                    <img src="/{{ r.image_path }}" alt="{{ r.plant_name }}" class="w-16 h-16 rounded-xl object-cover border border-slate-200 shrink-0">
+                    {% else %}
+                    <div class="w-16 h-16 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl shrink-0">
+                        <i class="fa-solid fa-heart-pulse"></i>
+                    </div>
+                    {% endif %}
+
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <h4 class="font-bold text-slate-800 text-base">{{ r.plant_name }}</h4>
+                            <span class="text-[11px] text-slate-400">&bull; {{ r.created_at.strftime('%b %d, %Y') }}</span>
+                        </div>
+                        <p class="text-xs font-bold text-amber-700 mt-0.5">{{ r.possible_issues }}</p>
+                        <p class="text-xs text-slate-500 line-clamp-1 mt-1 italic">Symptoms: "{{ r.symptoms }}"</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3 shrink-0">
+                    <a href="{{ url_for('health.report_detail', report_id=r.id) }}" class="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition-colors">
+                        View Report &rarr;
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-12 text-slate-400 text-xs">
+            <p class="font-semibold text-slate-600">No previous health reports recorded.</p>
+            <p class="mt-1">When you analyze plant symptoms, reports are preserved here for future reference.</p>
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

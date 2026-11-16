@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% block title %}Add New Plant{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto py-6">
+
+    {% if prefill %}
+    <!-- Banner indicating library prefill -->
+    <div class="mb-6 p-4 rounded-2xl bg-brand-50 border border-brand-200 text-brand-900 flex items-center justify-between text-sm">
+        <div class="flex items-center space-x-3">
+            <span class="w-8 h-8 rounded-lg bg-brand-200 text-brand-800 flex items-center justify-center font-bold">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </span>
+            <div>
+                <span class="font-bold">Prefilled from Plant Library:</span> {{ prefill.name }} ({{ prefill.scientific_name }})
+            </div>
+        </div>
+        <a href="{{ url_for('plants.add') }}" class="text-xs text-brand-700 underline font-semibold">Clear Prefill</a>
+    </div>
+    {% endif %}
+
+    <div class="bg-white rounded-3xl p-8 border border-slate-100 shadow-md">
+        <div class="flex items-center space-x-3 pb-6 border-b border-slate-100 mb-6">
+            <div class="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-2xl flex items-center justify-center text-xl">
+                <i class="fa-solid fa-seedling"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold text-slate-800">Add a Plant to Your Garden</h1>
+                <p class="text-xs text-slate-500">Record plant details and configure manual watering reminders</p>
+            </div>
+        </div>
+
+        <form method="POST" action="{{ url_for('plants.add') }}" enctype="multipart/form-data" class="space-y-6">
+            <!-- Row 1: Plant Name & Category -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="name" class="block text-sm font-semibold text-slate-700 mb-1">
+                        Plant Name <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="text" id="name" name="name" required
+                        value="{{ prefill.name if prefill else '' }}"
+                        placeholder="e.g. Living Room Monstera"
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+
+                <div>
+                    <label for="category" class="block text-sm font-semibold text-slate-700 mb-1">Category</label>
+                    <select id="category" name="category" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                        {% for cat in ['Indoor', 'Outdoor', 'Succulent', 'Flowering', 'Herb', 'Foliage'] %}
+                        <option value="{{ cat }}" {{ 'selected' if prefill and prefill.category == cat else '' }}>{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <!-- Row 2: Species & Date Added -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="species" class="block text-sm font-semibold text-slate-700 mb-1">Species / Botanical Name</label>
+                    <input type="text" id="species" name="species"
+                        value="{{ prefill.scientific_name if prefill else '' }}"
+                        placeholder="e.g. Monstera deliciosa"
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+
+                <div>
+                    <label for="date_added" class="block text-sm font-semibold text-slate-700 mb-1">Date Added to Collection</label>
+                    <input type="date" id="date_added" name="date_added"
+                        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+            </div>
+
+            <!-- Row 3: Watering & Fertilizer Frequencies -->
+            <div class="p-5 rounded-2xl bg-emerald-50/50 border border-emerald-100 space-y-4">
+                <h3 class="text-sm font-bold text-emerald-900 flex items-center space-x-2">
+                    <i class="fa-solid fa-clock-rotate-left text-emerald-600"></i>
+                    <span>Care Reminder Schedules (Days)</span>
+                </h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="watering_frequency_days" class="block text-xs font-semibold text-slate-700 mb-1">
+                            Water Every (days) <span class="text-rose-500">*</span>
+                        </label>
+                        <input type="number" id="watering_frequency_days" name="watering_frequency_days" min="1" max="90" required
+                            value="{{ prefill.default_watering_frequency_days if prefill else 7 }}"
+                            class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                        <span class="text-[11px] text-slate-400 mt-1 block">e.g. 7 for once a week, 14 for bi-weekly</span>
+                    </div>
+
+                    <div>
+                        <label for="fertilizer_frequency_days" class="block text-xs font-semibold text-slate-700 mb-1">
+                            Fertilize Every (days) <span class="text-rose-500">*</span>
+                        </label>
+                        <input type="number" id="fertilizer_frequency_days" name="fertilizer_frequency_days" min="1" max="180" required
+                            value="{{ prefill.default_fertilizer_frequency_days if prefill else 30 }}"
+                            class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                        <span class="text-[11px] text-slate-400 mt-1 block">e.g. 30 for monthly fertilizer feeding</span>
+                    </div>
+                </div>
+
+                <!-- Last Care Dates (Optional) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-emerald-100">
+                    <div>
+                        <label for="last_watered_date" class="block text-xs font-semibold text-slate-700 mb-1">Last Watered Date (Optional)</label>
+                        <input type="date" id="last_watered_date" name="last_watered_date"
+                            class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                        <span class="text-[11px] text-slate-400 mt-1 block">Leave empty to count from today</span>
+                    </div>
+
+                    <div>
+                        <label for="last_fertilized_date" class="block text-xs font-semibold text-slate-700 mb-1">Last Fertilized Date (Optional)</label>
+                        <input type="date" id="last_fertilized_date" name="last_fertilized_date"
+                            class="w-full px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 4: Image Upload -->
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Plant Photograph (Optional)</label>
+                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-200 border-dashed rounded-2xl hover:border-brand-500 transition-colors">
+                    <div class="space-y-1 text-center">
+                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-400 mb-2"></i>
+                        <div class="flex text-sm text-slate-600 justify-center">
+                            <label for="image" class="relative cursor-pointer bg-white rounded-md font-semibold text-brand-600 hover:text-brand-500 focus-within:outline-none">
+                                <span>Upload an image</span>
+                                <input id="image" name="image" type="file" accept="image/*" class="sr-only" onchange="previewFile(this)">
+                            </label>
+                            <p class="pl-1 text-slate-400">or drag and drop</p>
+                        </div>
+                        <p class="text-xs text-slate-400">PNG, JPG, JPEG, WEBP up to 16MB</p>
+                        <p id="fileNamePreview" class="text-xs font-semibold text-brand-700 mt-2 hidden"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 5: Notes -->
+            <div>
+                <label for="notes" class="block text-sm font-semibold text-slate-700 mb-1">Special Care Notes / Placement</label>
+                <textarea id="notes" name="notes" rows="3" placeholder="e.g. Near east window, loves misting, bought from local nursery..."
+                    class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">{{ prefill.care_instructions if prefill else '' }}</textarea>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100">
+                <a href="{{ url_for('plants.index') }}" class="px-5 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
+                    Cancel
+                </a>
+                <button type="submit" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-semibold shadow-md transition-all">
+                    Save Plant
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Set default date_added to today
+    document.addEventListener('DOMContentLoaded', () => {
+        const today = new Date().toISOString().split('T')[0];
+        const dateInput = document.getElementById('date_added');
+        if (dateInput && !dateInput.value) {
+            dateInput.value = today;
+        }
+    });
+
+    function previewFile(input) {
+        const preview = document.getElementById('fileNamePreview');
+        if (input.files && input.files[0]) {
+            preview.textContent = "Selected: " + input.files[0].name;
+            preview.classList.remove('hidden');
+        }
+    }
+</script>
+{% endblock %}

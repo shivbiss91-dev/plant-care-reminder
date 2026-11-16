@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% block title %}Care Reminders{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">Care Reminders</h1>
+            <p class="text-sm text-slate-500">Automated schedules for watering and fertilizer application</p>
+        </div>
+
+        <!-- Filter Buttons (All, Watering, Fertilizer) -->
+        <div class="flex items-center space-x-2 bg-white p-1.5 rounded-2xl border border-slate-100 shadow-sm text-xs font-semibold">
+            <a href="{{ url_for('reminders.index', type='all', status=current_status) }}" class="px-3 py-1.5 rounded-xl transition-colors {{ 'bg-brand-600 text-white shadow-sm' if current_type == 'all' else 'text-slate-600 hover:bg-slate-100' }}">
+                All Care
+            </a>
+            <a href="{{ url_for('reminders.index', type='watering', status=current_status) }}" class="px-3 py-1.5 rounded-xl transition-colors {{ 'bg-blue-600 text-white shadow-sm' if current_type == 'watering' else 'text-slate-600 hover:bg-slate-100' }}">
+                <i class="fa-solid fa-droplet mr-1"></i> Watering
+            </a>
+            <a href="{{ url_for('reminders.index', type='fertilizer', status=current_status) }}" class="px-3 py-1.5 rounded-xl transition-colors {{ 'bg-purple-600 text-white shadow-sm' if current_type == 'fertilizer' else 'text-slate-600 hover:bg-slate-100' }}">
+                <i class="fa-solid fa-bottle-droplet mr-1"></i> Fertilizer
+            </a>
+        </div>
+    </div>
+
+    <!-- Status Tabs -->
+    <div class="flex space-x-2 border-b border-slate-200 text-sm font-semibold">
+        <a href="{{ url_for('reminders.index', type=current_type, status='active') }}" class="pb-3 px-3 border-b-2 transition-all {{ 'border-brand-600 text-brand-700' if current_status == 'active' else 'border-transparent text-slate-500 hover:text-slate-700' }}">
+            Active Tasks ({{ overdue_list|length + today_list|length + upcoming_list|length }})
+        </a>
+        <a href="{{ url_for('reminders.index', type=current_type, status='completed') }}" class="pb-3 px-3 border-b-2 transition-all {{ 'border-brand-600 text-brand-700' if current_status == 'completed' else 'border-transparent text-slate-500 hover:text-slate-700' }}">
+            Completed History ({{ completed_list|length }})
+        </a>
+    </div>
+
+    {% if current_status == 'active' %}
+    <div class="space-y-6">
+
+        <!-- 1. Overdue Section -->
+        {% if overdue_list %}
+        <div class="bg-white rounded-3xl p-6 border border-rose-200 shadow-sm">
+            <div class="flex items-center space-x-2 text-rose-600 font-bold mb-4">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <h2 class="text-base text-slate-800">Overdue Reminders ({{ overdue_list|length }})</h2>
+            </div>
+
+            <div class="divide-y divide-slate-100">
+                {% for r in overdue_list %}
+                <div class="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-center space-x-3">
+                        <span class="w-10 h-10 rounded-xl {{ 'bg-blue-100 text-blue-600' if r.reminder_type == 'watering' else 'bg-purple-100 text-purple-600' }} flex items-center justify-center text-sm">
+                            <i class="fa-solid {{ 'fa-droplet' if r.reminder_type == 'watering' else 'fa-bottle-droplet' }}"></i>
+                        </span>
+                        <div>
+                            <h4 class="font-bold text-slate-800 text-sm">
+                                <a href="{{ url_for('plants.detail', plant_id=r.plant.id) }}" class="hover:underline">{{ r.plant.name }}</a>
+                            </h4>
+                            <p class="text-xs text-rose-500 font-semibold">
+                                Was due on {{ r.due_date.strftime('%b %d, %Y') }} ({{ (today - r.due_date).days }} day(s) overdue)
+                            </p>
+                        </div>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('reminders.complete', reminder_id=r.id) }}" class="flex items-center space-x-2">
+                        <input type="text" name="notes" placeholder="Optional notes..." class="px-3 py-1.5 rounded-lg border border-slate-200 text-xs w-40">
+                        <button type="submit" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-all whitespace-nowrap">
+                            <i class="fa-solid fa-check mr-1"></i> Mark Done
+                        </button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- 2. Due Today Section -->
+        {% if today_list %}
+        <div class="bg-white rounded-3xl p-6 border border-amber-200 shadow-sm">
+            <div class="flex items-center space-x-2 text-amber-600 font-bold mb-4">
+                <i class="fa-regular fa-calendar-check"></i>
+                <h2 class="text-base text-slate-800">Due Today ({{ today_list|length }})</h2>
+            </div>
+
+            <div class="divide-y divide-slate-100">
+                {% for r in today_list %}
+                <div class="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-center space-x-3">
+                        <span class="w-10 h-10 rounded-xl {{ 'bg-blue-100 text-blue-600' if r.reminder_type == 'watering' else 'bg-purple-100 text-purple-600' }} flex items-center justify-center text-sm">
+                            <i class="fa-solid {{ 'fa-droplet' if r.reminder_type == 'watering' else 'fa-bottle-droplet' }}"></i>
+                        </span>
+                        <div>
+                            <h4 class="font-bold text-slate-800 text-sm">
+                                <a href="{{ url_for('plants.detail', plant_id=r.plant.id) }}" class="hover:underline">{{ r.plant.name }}</a>
+                            </h4>
+                            <p class="text-xs text-slate-500 capitalize">
+                                {{ r.reminder_type }} scheduled today
+                            </p>
+                        </div>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('reminders.complete', reminder_id=r.id) }}" class="flex items-center space-x-2">
+                        <input type="text" name="notes" placeholder="Optional notes..." class="px-3 py-1.5 rounded-lg border border-slate-200 text-xs w-40">
+                        <button type="submit" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition-all whitespace-nowrap">
+                            <i class="fa-solid fa-check mr-1"></i> Mark Done
+                        </button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- 3. Upcoming Reminders -->
+        <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
+            <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center space-x-2">
+                <i class="fa-regular fa-clock text-slate-400"></i>
+                <span>Upcoming Reminders</span>
+            </h2>
+
+            {% if upcoming_list %}
+            <div class="divide-y divide-slate-100">
+                {% for r in upcoming_list %}
+                <div class="py-3 flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <span class="w-8 h-8 rounded-lg {{ 'bg-blue-50 text-blue-500' if r.reminder_type == 'watering' else 'bg-purple-50 text-purple-500' }} flex items-center justify-center text-xs">
+                            <i class="fa-solid {{ 'fa-droplet' if r.reminder_type == 'watering' else 'fa-bottle-droplet' }}"></i>
+                        </span>
+                        <div>
+                            <h5 class="text-sm font-semibold text-slate-800">{{ r.plant.name }}</h5>
+                            <p class="text-xs text-slate-400 capitalize">{{ r.reminder_type }} (every {{ r.frequency_days }} days)</p>
+                        </div>
+                    </div>
+
+                    <span class="text-xs font-semibold text-slate-600 bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
+                        Due in {{ (r.due_date - today).days }} days ({{ r.due_date.strftime('%b %d') }})
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-xs text-slate-400 text-center py-6">No upcoming reminders in this category.</p>
+            {% endif %}
+        </div>
+
+    </div>
+    {% else %}
+    <!-- Completed List Tab -->
+    <div class="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
+        <h2 class="text-base font-bold text-slate-800 mb-4">Completed Care Tasks</h2>
+        {% if completed_list %}
+        <div class="divide-y divide-slate-100">
+            {% for r in completed_list %}
+            <div class="py-3 flex items-center justify-between text-xs">
+                <div class="flex items-center space-x-3">
+                    <i class="fa-solid fa-circle-check text-emerald-500 text-sm"></i>
+                    <div>
+                        <span class="font-bold text-slate-800">{{ r.plant.name }}</span>
+                        <span class="text-slate-400 ml-1 capitalize">&bull; {{ r.reminder_type }}</span>
+                        {% if r.notes %}<p class="text-[11px] text-slate-500 mt-0.5 font-mono">Note: {{ r.notes }}</p>{% endif %}
+                    </div>
+                </div>
+                <span class="text-slate-400">Completed on {{ r.completed_at.strftime('%b %d, %Y') if r.completed_at else 'Recorded' }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-xs text-slate-400 text-center py-8">No completed reminders recorded yet.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

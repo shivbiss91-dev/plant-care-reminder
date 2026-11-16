@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% block title %}Plant Health Checker{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-6">
+
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">Plant Health Checker</h1>
+            <p class="text-sm text-slate-500">Analyze visible symptoms to identify potential care or disease issues</p>
+        </div>
+        <a href="{{ url_for('health.history') }}" class="text-xs font-semibold text-brand-600 hover:underline">
+            Previous Reports &rarr;
+        </a>
+    </div>
+
+    <!-- Educational Disclaimer Banner -->
+    <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start space-x-3">
+        <i class="fa-solid fa-circle-info text-amber-600 text-sm mt-0.5"></i>
+        <div>
+            <p class="font-bold">Transparent Botanical Symptom Engine</p>
+            <p class="mt-0.5 text-amber-800 leading-relaxed">
+                This tool evaluates visible symptoms against standard horticultural care guidelines. Recommendations provide common causes and practical recovery steps, not guaranteed botanical diagnoses.
+            </p>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-md">
+        <form method="POST" action="{{ url_for('health.index') }}" enctype="multipart/form-data" class="space-y-6">
+            
+            <!-- Plant Selector -->
+            <div>
+                <label for="plant_id" class="block text-sm font-semibold text-slate-700 mb-1">Select Plant</label>
+                <select id="plant_id" name="plant_id" onchange="toggleManualPlantName(this)" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+                    {% if plants %}
+                        {% for p in plants %}
+                        <option value="{{ p.id }}" {{ 'selected' if request.args.get('plant_id') == p.id|string else '' }}>{{ p.name }} ({{ p.category or 'Indoor' }})</option>
+                        {% endfor %}
+                    {% endif %}
+                    <option value="other" {{ 'selected' if not plants else '' }}>Other / Plant not in collection</option>
+                </select>
+            </div>
+
+            <!-- Manual plant name if other -->
+            <div id="manualNameField" class="{{ 'hidden' if plants and request.args.get('plant_id') != 'other' else '' }}">
+                <label for="manual_plant_name" class="block text-xs font-semibold text-slate-700 mb-1">Enter Plant Name or Type</label>
+                <input type="text" id="manual_plant_name" name="manual_plant_name" placeholder="e.g. Fern or Citrus"
+                    class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+            </div>
+
+            <!-- Image Upload -->
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1">Upload Photograph of Leaf or Stem (Optional)</label>
+                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-200 border-dashed rounded-2xl hover:border-brand-500 transition-colors">
+                    <div class="space-y-1 text-center">
+                        <i class="fa-solid fa-camera text-3xl text-slate-400 mb-2"></i>
+                        <div class="flex text-sm text-slate-600 justify-center">
+                            <label for="image" class="relative cursor-pointer bg-white rounded-md font-semibold text-brand-600 hover:text-brand-500">
+                                <span>Choose an image</span>
+                                <input id="image" name="image" type="file" accept="image/*" class="sr-only" onchange="previewUpload(this)">
+                            </label>
+                        </div>
+                        <p class="text-xs text-slate-400">JPG, PNG, WEBP up to 16MB</p>
+                        <p id="previewText" class="text-xs font-semibold text-brand-700 mt-2 hidden"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Symptoms Input & Quick Badges -->
+            <div>
+                <label for="symptoms" class="block text-sm font-semibold text-slate-700 mb-1">
+                    Describe Visible Symptoms <span class="text-rose-500">*</span>
+                </label>
+                <p class="text-xs text-slate-400 mb-2">Click any matching symptom chips below to quickly add them:</p>
+
+                <!-- Quick Symptom Badges -->
+                <div class="flex flex-wrap gap-2 mb-3">
+                    <button type="button" onclick="addSymptom('Yellowing lower leaves and mushy stems')" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 transition-colors">
+                        + Yellowing Leaves
+                    </button>
+                    <button type="button" onclick="addSymptom('Crisp brown leaf tips and dry soil')" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 transition-colors">
+                        + Brown Leaf Tips
+                    </button>
+                    <button type="button" onclick="addSymptom('Fine webbing and tiny white speckles under leaves')" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 transition-colors">
+                        + Webbing / Pests
+                    </button>
+                    <button type="button" onclick="addSymptom('Pale, leggy growth stretching towards light')" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 transition-colors">
+                        + Leggy / Stretching
+                    </button>
+                    <button type="button" onclick="addSymptom('Black or brown circular spots on leaves')" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 transition-colors">
+                        + Black Leaf Spots
+                    </button>
+                    <button type="button" onclick="addSymptom('Pale leaves with dark green veins (chlorosis)')" class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 transition-colors">
+                        + Pale Veins
+                    </button>
+                </div>
+
+                <textarea id="symptoms" name="symptoms" rows="4" required
+                    placeholder="Describe what you see: leaf discoloration, drooping, texture, spots, pests, or recent environmental changes..."
+                    class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"></textarea>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-semibold shadow-md transition-all flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-stethoscope"></i>
+                <span>Analyze Plant Health</span>
+            </button>
+        </form>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function toggleManualPlantName(select) {
+        const manualDiv = document.getElementById('manualNameField');
+        if (select.value === 'other') {
+            manualDiv.classList.remove('hidden');
+        } else {
+            manualDiv.classList.add('hidden');
+        }
+    }
+
+    function addSymptom(text) {
+        const textarea = document.getElementById('symptoms');
+        if (textarea.value.trim() === '') {
+            textarea.value = text;
+        } else if (!textarea.value.includes(text)) {
+            textarea.value += ', ' + text;
+        }
+    }
+
+    function previewUpload(input) {
+        const preview = document.getElementById('previewText');
+        if (input.files && input.files[0]) {
+            preview.textContent = "Selected: " + input.files[0].name;
+            preview.classList.remove('hidden');
+        }
+    }
+</script>
+{% endblock %}
